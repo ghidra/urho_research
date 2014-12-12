@@ -11,7 +11,7 @@ echo $SCRIPTPATH
 echo $URHODATA
 
 
-for Dir in $(find $SCRIPTPATH* -mindepth 1 -maxdepth 1 -type d );
+for Dir in $(find $SCRIPTPATH* -mindepth 1 -maxdepth 1 -not -path '*/\.*' -type d );
 do
     FOLDER=$(basename $Dir);
     if [ "$FOLDER" == "Scripts" ]; then
