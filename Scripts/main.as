@@ -16,6 +16,11 @@ void CreateScene(){
     tobj.heightMap = cache.GetResource("Image","Textures/HeightMap.png");
     tobj.material = cache.GetResource("Material","Materials/Terrain_B.xml");//this also reaches the "Extra" folder
 
+    /*Node@ bnode = scene_.CreateChild("Cube");
+    StaticModel@ bobj = bnode.CreateComponent("StaticModel");
+    bobj.model = cache.GetResource("Model", "Models/Box.mdl");
+    bobj.material = cache.GetResource("Material","Materials/Normal.xml");*/
+
     Node@ lightNode = scene_.CreateChild("DirectionalLight");
     lightNode.direction = Vector3(0.6f, -1.0f, 0.8f); // The direction vector does not need to be normalized
     Light@ light = lightNode.CreateComponent("Light");
