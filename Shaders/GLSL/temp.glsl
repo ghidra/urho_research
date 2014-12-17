@@ -107,10 +107,6 @@ void PS()
     // Get normal
     vec3 normal = normalize(vNormal);
 
-    float cx = mod(vWorldPos.x,10);
-    float cz = mod(vWorldPos.z,10);
-    float e = 0.5;
-
     // Get fog factor
     #ifdef HEIGHTFOG
         float fogFactor = GetHeightFogFactor(vWorldPos.w, vWorldPos.y);
@@ -183,3 +179,34 @@ void PS()
         gl_FragColor = vec4(GetFog(finalColor, fogFactor), diffColor.a);
     #endif
 }
+
+
+/*#include "Uniforms.glsl"
+#include "Samplers.glsl"
+#include "Transform.glsl"
+
+varying vec4 vWorldPos;
+
+void VS()
+{
+    mat4 modelMatrix = iModelMatrix;
+    vec3 worldPos = GetWorldPos(modelMatrix);
+    gl_Position = GetClipPos(worldPos);
+    vWorldPos = vec4(worldPos, GetDepth(gl_Position));
+}
+
+void PS()
+{
+    float cx = mod(vWorldPos.x,10);
+    float cz = mod(vWorldPos.z,10);
+    float e = 0.5;
+
+    if(!((cx > 10.0-e && cx < 10.0+e) || (cz > 10.0-e && cz < 10.0+e)) ) {//inside a square
+      float dist = max(abs(cx-5.0), abs(cz-5.0)) / 10.0;
+      if(dist > 0.8) dist * 0.5;
+      gl_FragColor = vec4(0.0, 0.0, 0.0, dist);
+    }else{ //outside a square
+      gl_FragColor = normalize(vec4(1.0, 1.0, 1.0, 0.0));
+    }
+    //gl_FragColor = normalize(vec4(1.0, 1.0, 1.0, 0.0));
+}*/

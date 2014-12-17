@@ -1,0 +1,3 @@
+<technique vs="simple" ps="simple" vsdefines="VERTEXCOLOR" psdefines="VERTEXCOLOR">
+    <pass name="base" />
+</technique>

@@ -11,15 +11,21 @@ void CreateScene(){
     scene_ = Scene();
     scene_.CreateComponent("Octree");
 
-    Node@ tnode = scene_.CreateChild("Terrain");
-    Terrain@ tobj = tnode.CreateComponent("Terrain");
-    tobj.heightMap = cache.GetResource("Image","Textures/HeightMap.png");
-    tobj.material = cache.GetResource("Material","Materials/Terrain_B.xml");//this also reaches the "Extra" folder
+    //Node@ tnode = scene_.CreateChild("Terrain");
+    //Terrain@ tobj = tnode.CreateComponent("Terrain");
+    //tobj.heightMap = cache.GetResource("Image","Textures/HeightMap.png");
+    //tobj.material = cache.GetResource("Material","Materials/research/Terrain_B.xml");//this also reaches the "Extra" folder
 
-    /*Node@ bnode = scene_.CreateChild("Cube");
+    Node@ bnode = scene_.CreateChild("Cube");
     StaticModel@ bobj = bnode.CreateComponent("StaticModel");
     bobj.model = cache.GetResource("Model", "Models/Box.mdl");
-    bobj.material = cache.GetResource("Material","Materials/Normal.xml");*/
+    //bobj.material = cache.GetResource("Material","Materials/Stone.xml");
+    bobj.material = cache.GetResource("Material","Materials/research/simple.xml");
+
+    ScriptInstance@ instance = bnode.CreateComponent("ScriptInstance");
+    instance.CreateObject(scriptFile, "Rotator");
+    Rotator@ rotator = cast<Rotator>(instance.scriptObject);
+    rotator.rotationSpeed = Vector3(10.0f, 20.0f, 30.0f);
 
     Node@ lightNode = scene_.CreateChild("DirectionalLight");
     lightNode.direction = Vector3(0.6f, -1.0f, 0.8f); // The direction vector does not need to be normalized
@@ -29,7 +35,7 @@ void CreateScene(){
     cameraNode = scene_.CreateChild("Camera");
     cameraNode.CreateComponent("Camera");
 
-    cameraNode.position = Vector3(0.0f, 5.0f, 0.0f);
+    cameraNode.position = Vector3(0.0f, 5.0f, -25.0f);
 }
 
 
@@ -38,7 +44,7 @@ void SetupViewport(){
     // at minimum. Additionally we could configure the viewport screen size and the rendering path (eg. forward / deferred) to
     // use, but now we just use full screen and default render path configured in the engine command line options
     Viewport@ viewport = Viewport(scene_, cameraNode.GetComponent("Camera"));
-    XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Forward.xml");
+    XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Forward.xml");
     viewport.SetRenderPath(xml);
     renderer.viewports[0] = viewport;
 }
@@ -84,6 +90,17 @@ void HandleUpdate(StringHash eventType, VariantMap& eventData){
 
     // Move the camera, scale movement with time step
     MoveCamera(timeStep);
+}
+
+class Rotator : ScriptObject
+{
+    Vector3 rotationSpeed;
+
+    // Update is called during the variable timestep scene update
+    void Update(float timeStep)
+    {
+        node.Rotate(Quaternion(rotationSpeed.x * timeStep, rotationSpeed.y * timeStep, rotationSpeed.z * timeStep));
+    }
 }
 
 // Create XML patch instructions for screen joystick layout specific to this sample app
