@@ -16,6 +16,14 @@ void CreateScene(){
     //tobj.heightMap = cache.GetResource("Image","Textures/HeightMap.png");
     //tobj.material = cache.GetResource("Material","Materials/research/Terrain_B.xml");//this also reaches the "Extra" folder
 
+    Node@ bgnode = scene_.CreateChild("BG");
+    StaticModel@ bgobj = bgnode.CreateComponent("StaticModel");
+    bgobj.model = cache.GetResource("Model", "Models/Plane.mdl");
+    //bobj.material = cache.GetResource("Material","Materials/Stone.xml");
+    bgobj.material = cache.GetResource("Material","Materials/research/simple.xml");
+    bgnode.Scale(15.0f);
+    bgnode.SetTransform(Vector3(0.0f,0.0f,15.0f),Quaternion(90.0f,Vector3(-1.0f,0.0f,0.0f)));
+
     Node@ bnode = scene_.CreateChild("Cube");
     StaticModel@ bobj = bnode.CreateComponent("StaticModel");
     bobj.model = cache.GetResource("Model", "Models/Box.mdl");
