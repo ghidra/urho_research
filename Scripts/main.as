@@ -24,7 +24,7 @@ void CreateScene(){
     bgnode.Scale(15.0f);
     bgnode.SetTransform(Vector3(0.0f,0.0f,15.0f),Quaternion(90.0f,Vector3(-1.0f,0.0f,0.0f)));
 
-    Node@ bnode = scene_.CreateChild("Cube");
+    /*Node@ bnode = scene_.CreateChild("Cube");
     StaticModel@ bobj = bnode.CreateComponent("StaticModel");
     bobj.model = cache.GetResource("Model", "Models/Box.mdl");
     //bobj.material = cache.GetResource("Material","Materials/Stone.xml");
@@ -33,7 +33,31 @@ void CreateScene(){
     ScriptInstance@ instance = bnode.CreateComponent("ScriptInstance");
     instance.CreateObject(scriptFile, "Rotator");
     Rotator@ rotator = cast<Rotator>(instance.scriptObject);
-    rotator.rotationSpeed = Vector3(10.0f, 20.0f, 30.0f);
+    rotator.rotationSpeed = Vector3(10.0f, 20.0f, 30.0f);*/
+
+    const uint NUM_OBJECTS = 100;
+    for (uint i = 0; i < NUM_OBJECTS; ++i)
+    {
+        Node@ boxNode = scene_.CreateChild("Box");
+        boxNode.position = Vector3(Random(50.0f) - 25.0f, Random(50.0f) - 25.0f, Random(50.0f) - 25.0f);
+        // Orient using random pitch, yaw and roll Euler angles
+        boxNode.rotation = Quaternion(Random(360.0f), Random(360.0f), Random(360.0f));
+        StaticModel@ boxObject = boxNode.CreateComponent("StaticModel");
+        boxObject.model = cache.GetResource("Model", "Models/Box.mdl");
+        //boxObject.material = cache.GetResource("Material", "Materials/Stone.xml");
+        boxObject.material = cache.GetResource("Material", "Materials/research/simple.xml");
+
+        // Add the Rotator script object which will rotate the scene node each frame, when the scene sends its update event.
+        // This requires the C++ component ScriptInstance in the scene node, which acts as a container. We need to tell the
+        // script file and class name to instantiate the object (scriptFile is a global property which refers to the currently
+        // executing script file.) There is also a shortcut for creating the ScriptInstance component and the script object,
+        // which is shown in a later sample, but this is what happens "under the hood."
+        ScriptInstance@ instance = boxNode.CreateComponent("ScriptInstance");
+        instance.CreateObject(scriptFile, "Rotator");
+        // Retrieve the created script object and set its rotation speed member variable
+        Rotator@ rotator = cast<Rotator>(instance.scriptObject);
+        rotator.rotationSpeed = Vector3(10.0f, 20.0f, 30.0f);
+    }
 
     Node@ lightNode = scene_.CreateChild("DirectionalLight");
     lightNode.direction = Vector3(0.6f, -1.0f, 0.8f); // The direction vector does not need to be normalized

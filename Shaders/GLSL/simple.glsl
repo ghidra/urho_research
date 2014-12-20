@@ -10,16 +10,6 @@
     varying vec4 vScreenPos;
 #endif
 
-#ifdef COMPILEVS
-uniform vec2 cNoiseSpeed;
-uniform float cNoiseTiling;
-#endif
-#ifdef COMPILEPS
-uniform float cNoiseStrength;
-uniform float cFresnelPower;
-uniform vec3 cWaterTint;
-#endif
-
 #ifdef COMPILEPS
 float threshold(in float thr1, in float thr2 , in float val) {
  if (val < thr1) {return 0.0;}
@@ -29,7 +19,7 @@ float threshold(in float thr1, in float thr2 , in float val) {
 
 // averaged pixel intensity from 3 color channels
 float avg_intensity(in vec4 pix) {
- return (pix.r + pix.g + pix.b)/3.;
+ return (pix.r + pix.g + pix.b)/3.0;
 }
 
 vec4 get_pixel(in sampler2D tex, in vec2 coords, in float dx, in float dy) {
@@ -40,20 +30,29 @@ vec4 get_pixel(in sampler2D tex, in vec2 coords, in float dx, in float dy) {
 float IsEdge(in sampler2D tex, in vec2 coords){
   float dxtex = 1.0 / 1920.0; //image width;
   float dytex = 1.0 / 1080.0; //image height;
-  float pix[9];
+  //float pix[9];
+  float pix[5];
   int k = -1;
   float delta;
 
+  pix[0] = avg_intensity(get_pixel(tex,coords,float(-1)*dxtex,float(0)*dytex));
+  pix[1] = avg_intensity(get_pixel(tex,coords,float(-1)*dxtex,float(1)*dytex));
+  pix[2] = avg_intensity(get_pixel(tex,coords,float(0)*dxtex,float(0)*dytex));//color of itself
+  pix[3] = avg_intensity(get_pixel(tex,coords,float(0)*dxtex,float(1)*dytex));
+  pix[4] = avg_intensity(get_pixel(tex,coords,float(1)*dxtex,float(1)*dytex));
   // read neighboring pixel intensities
-  for (int i=-1; i<2; i++) {
+  /*for (int i=-1; i<2; i++) {
     for(int j=-1; j<2; j++) {
       k++;
       pix[k] = avg_intensity(get_pixel(tex,coords,float(i)*dxtex,float(j)*dytex));
     }
-  }
+  }*/
 
   // average color differences around neighboring pixels
-  delta = (abs(pix[1]-pix[7])+abs(pix[5]-pix[3]) +abs(pix[0]-pix[8])+abs(pix[2]-pix[6]))/4.0;
+  delta = ( abs(pix[0]-pix[2]) + abs(pix[1]-pix[2]) + abs(pix[3]-pix[2]) + abs(pix[4]-pix[2]) ) / 4.0;
+  //delta = ( abs(pix[0]-pix[2]) + abs(pix[1]-pix[2]) + abs(pix[3]-pix[2]) ) / 3.0;
+  //delta = ( abs(pix[1]-pix[7]) + abs(pix[5]-pix[3]) + abs(pix[0]-pix[8]) + abs(pix[2]-pix[6]) ) / 4.0;
+  //delta = (abs(pix[1]-pix[7])+abs(pix[5]-pix[3]) +abs(pix[0]-pix[8])+abs(pix[2]-pix[6]))/4.0;
   return threshold(0.0,0.1,clamp(1.8*delta,0.0,1.0));
 }
 #endif
@@ -86,7 +85,7 @@ void PS()
     #endif
 
     #ifdef EDGE
-      vec4 color = vec4(0.0,0.0,0.0,0.0);
+      vec4 color = vec4(0.0,0.0,0.0,1.0);
       if(IsEdge(sEnvMap,vScreenPos.xy / vScreenPos.w)>0.1){
         color.rgba = vec4(1.0);
         //color.g = IsEdge(sEnvMap,vScreenPos.xy / vScreenPos.w);
