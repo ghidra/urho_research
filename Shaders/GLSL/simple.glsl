@@ -3,6 +3,8 @@
 #include "Transform.glsl"
 #include "ScreenPos.glsl"
 
+uniform vec4 cObjectColor;
+
 #ifdef BASE
     varying vec4 vColor;
 #endif
@@ -93,7 +95,7 @@ void VS()
         //vColor = iColor;
         vec3 n = iNormal+vec3(1.0);
         n*=0.5;
-        vColor = vec4(n,1.0);
+        vColor = mix(cObjectColor,vec4(n,1.0),0.5);
     #endif
 }
 
@@ -108,8 +110,8 @@ void PS()
     #endif
 
     #ifdef EDGE
-      vec4 color = vec4(0.0,0.0,0.0,1.0);
-      if(IsEdge(sEnvMap,vScreenPos.xy / vScreenPos.w)>=2.0){
+      vec4 color = vec4(0.0,0.0,0.0,0.0);
+      if(IsEdge(sEnvMap,vScreenPos.xy / vScreenPos.w)>1.0){
         color.rgba = vec4(1.0);
         //color = get_pixel(sEnvMap,vScreenPos.xy / vScreenPos.w,float(0)*(1.0/1920.0),float(0)*(1.0/1080.0));
         //color.rgba = diffColor;

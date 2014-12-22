@@ -45,7 +45,18 @@ void CreateScene(){
         StaticModel@ boxObject = boxNode.CreateComponent("StaticModel");
         boxObject.model = cache.GetResource("Model", "Models/Box.mdl");
         //boxObject.material = cache.GetResource("Material", "Materials/Stone.xml");
-        boxObject.material = cache.GetResource("Material", "Materials/research/simple.xml");
+
+
+        Material@ bmat = cache.GetResource("Material", "Materials/research/simple.xml");
+        Material@ rmat = bmat.Clone();
+
+        ValueAnimation@ colAnim = ValueAnimation();
+        //SetRandomSeed(i);
+        Color myCol = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
+        colAnim.SetKeyFrame(0.0f, Variant(myCol));
+        colAnim.SetKeyFrame(1.0f, Variant(myCol));
+        rmat.SetShaderParameterAnimation("ObjectColor",colAnim);
+        boxObject.material = rmat;
 
         // Add the Rotator script object which will rotate the scene node each frame, when the scene sends its update event.
         // This requires the C++ component ScriptInstance in the scene node, which acts as a container. We need to tell the

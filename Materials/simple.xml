@@ -1,3 +1,4 @@
 <material>
     <technique name="Techniques/research/simple.xml" />
+    <parameter name="ObjectColor" value="1.0 1.0 1.0 16" />
 </material>
