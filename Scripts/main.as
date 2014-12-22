@@ -50,12 +50,13 @@ void CreateScene(){
         Material@ bmat = cache.GetResource("Material", "Materials/research/simple.xml");
         Material@ rmat = bmat.Clone();
 
-        ValueAnimation@ colAnim = ValueAnimation();
-        //SetRandomSeed(i);
+        //ValueAnimation@ colAnim = ValueAnimation();
         Color myCol = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
-        colAnim.SetKeyFrame(0.0f, Variant(myCol));
-        colAnim.SetKeyFrame(1.0f, Variant(myCol));
-        rmat.SetShaderParameterAnimation("ObjectColor",colAnim);
+        //colAnim.SetKeyFrame(0.0f, Variant(myCol));
+        //colAnim.SetKeyFrame(1.0f, Variant(myCol));
+        //rmat.SetShaderParameterAnimation("ObjectColor",colAnim);
+
+        rmat.shaderParameters["ObjectColor"]=Variant(myCol);//single quotes didnt work
         boxObject.material = rmat;
 
         // Add the Rotator script object which will rotate the scene node each frame, when the scene sends its update event.

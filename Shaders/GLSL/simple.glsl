@@ -95,7 +95,7 @@ void VS()
         //vColor = iColor;
         vec3 n = iNormal+vec3(1.0);
         n*=0.5;
-        vColor = mix(cObjectColor,vec4(n,1.0),0.5);
+        vColor = mix(cObjectColor,vec4(n,1.0),0.1);
     #endif
 }
 
