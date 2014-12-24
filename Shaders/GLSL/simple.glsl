@@ -13,18 +13,23 @@ uniform vec4 cObjectColor;
 #endif
 
 #ifdef COMPILEPS
-float threshold(in float thr1, in float thr2 , in float val) {
+/*float threshold(in float thr1, in float thr2 , in float val) {
  if (val < thr1) {return 0.0;}
  if (val > thr2) {return 1.0;}
  return val;
-}
+}*/
 
 // averaged pixel intensity from 3 color channels
 //float avg_intensity(in vec4 pix) {
 // return (pix.r + pix.g + pix.b)/3.0;
 //}
 float color_difference(in vec4 sc, in vec4 nc){
-  return abs(sc.r-nc.r)+abs(sc.g-nc.g)+abs(sc.b-nc.b);
+  float dif = abs(sc.r-nc.r)+abs(sc.g-nc.g)+abs(sc.b-nc.b);
+  float adif = 0.0;
+  if (dif>0.01){
+    adif=1.0;
+  }
+  return adif;
 }
 
 vec4 get_pixel(in sampler2D tex, in vec2 coords, in float dx, in float dy) {
@@ -110,10 +115,10 @@ void PS()
     #endif
 
     #ifdef EDGE
-      vec4 color = vec4(0.0,0.0,0.0,0.0);
+      vec4 color = vec4(0.0,0.0,0.0,1.0);
       if(IsEdge(sEnvMap,vScreenPos.xy / vScreenPos.w)>1.0){
-        color.rgba = vec4(1.0);
-        //color = get_pixel(sEnvMap,vScreenPos.xy / vScreenPos.w,float(0)*(1.0/1920.0),float(0)*(1.0/1080.0));
+        //color.rgba = vec4(1.0);
+        color = get_pixel(sEnvMap,vScreenPos.xy / vScreenPos.w,float(0)*(1.0/1920.0),float(0)*(1.0/1080.0));
         //color.rgba = diffColor;
         //color.g = IsEdge(sEnvMap,vScreenPos.xy / vScreenPos.w);
         //color.a = 1.0;
