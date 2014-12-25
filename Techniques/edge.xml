@@ -1,4 +1,4 @@
-<technique vs="simple" ps="simple" >
+<technique vs="edge" ps="edge" >
     <pass name="base" vsdefines="BASE" psdefines="BASE"/>
     <pass name="refract" vsdefines="EDGE" psdefines="EDGE" blend="alpha"/>
 </technique>

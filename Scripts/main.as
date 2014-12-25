@@ -20,7 +20,7 @@ void CreateScene(){
     StaticModel@ bgobj = bgnode.CreateComponent("StaticModel");
     bgobj.model = cache.GetResource("Model", "Models/Plane.mdl");
     //bobj.material = cache.GetResource("Material","Materials/Stone.xml");
-    Material@ bmata = cache.GetResource("Material", "Materials/research/simple.xml");
+    Material@ bmata = cache.GetResource("Material", "Materials/research/edge.xml");
     Material@ rmata = bmata.Clone();
     Color myCola = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
     rmata.shaderParameters["ObjectColor"]=Variant(myCola);//single quotes didnt work
@@ -52,7 +52,7 @@ void CreateScene(){
         //boxObject.material = cache.GetResource("Material", "Materials/Stone.xml");
 
 
-        Material@ bmat = cache.GetResource("Material", "Materials/research/simple.xml");
+        Material@ bmat = cache.GetResource("Material", "Materials/research/edge.xml");
         Material@ rmat = bmat.Clone();
 
         Color myCol = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
