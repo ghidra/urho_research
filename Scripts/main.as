@@ -20,7 +20,12 @@ void CreateScene(){
     StaticModel@ bgobj = bgnode.CreateComponent("StaticModel");
     bgobj.model = cache.GetResource("Model", "Models/Plane.mdl");
     //bobj.material = cache.GetResource("Material","Materials/Stone.xml");
-    bgobj.material = cache.GetResource("Material","Materials/research/simple.xml");
+    Material@ bmata = cache.GetResource("Material", "Materials/research/simple.xml");
+    Material@ rmata = bmata.Clone();
+    Color myCola = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
+    rmata.shaderParameters["ObjectColor"]=Variant(myCola);//single quotes didnt work
+    bgobj.material = rmata;
+
     bgnode.Scale(15.0f);
     bgnode.SetTransform(Vector3(0.0f,0.0f,15.0f),Quaternion(90.0f,Vector3(-1.0f,0.0f,0.0f)));
 
@@ -50,11 +55,7 @@ void CreateScene(){
         Material@ bmat = cache.GetResource("Material", "Materials/research/simple.xml");
         Material@ rmat = bmat.Clone();
 
-        //ValueAnimation@ colAnim = ValueAnimation();
         Color myCol = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
-        //colAnim.SetKeyFrame(0.0f, Variant(myCol));
-        //colAnim.SetKeyFrame(1.0f, Variant(myCol));
-        //rmat.SetShaderParameterAnimation("ObjectColor",colAnim);
 
         rmat.shaderParameters["ObjectColor"]=Variant(myCol);//single quotes didnt work
         boxObject.material = rmat;

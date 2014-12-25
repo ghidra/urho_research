@@ -37,9 +37,9 @@ vec4 get_pixel(in sampler2D tex, in vec2 coords, in float dx, in float dy) {
 }
 
 // returns pixel color
-float IsEdge(in sampler2D tex, in vec2 coords){
-  float dxtex = 1.0 / 1920.0; //image width;
-  float dytex = 1.0 / 1080.0; //image height;
+float IsEdge(in sampler2D tex, in vec2 coords, in vec2 size){
+  float dxtex =  size.x;//1920.0; //image width;
+  float dytex = size.y;//1.0 / 1080.0; //image height;
   //float pix[9];
   //float pix[5];
   float cd[8];
@@ -115,10 +115,10 @@ void PS()
     #endif
 
     #ifdef EDGE
-      vec4 color = vec4(0.0,0.0,0.0,1.0);
-      if(IsEdge(sEnvMap,vScreenPos.xy / vScreenPos.w)>1.0){
-        //color.rgba = vec4(1.0);
-        color = get_pixel(sEnvMap,vScreenPos.xy / vScreenPos.w,float(0)*(1.0/1920.0),float(0)*(1.0/1080.0));
+      vec4 color = vec4(0.0,0.0,0.0,0.0);
+      if(IsEdge(sEnvMap,vScreenPos.xy / vScreenPos.w, cGBufferInvSize)>1.0){
+        color.rgba = vec4(1.0);
+        //color = get_pixel(sEnvMap,vScreenPos.xy / vScreenPos.w,float(0)*(cGBufferInvSize.x),float(0)*(cGBufferInvSize.y));
         //color.rgba = diffColor;
         //color.g = IsEdge(sEnvMap,vScreenPos.xy / vScreenPos.w);
         //color.a = 1.0;
