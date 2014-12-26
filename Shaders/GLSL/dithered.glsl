@@ -72,11 +72,15 @@ void PS()
     #endif
 
     #ifdef EDGE
-      vec4 lum = vec4(0.299, 0.587, 0.114, 0);
-      float grayscale = dot(texture2D(sEnvMap, vTexCoord), lum);
-      vec3 rgb = texture2D(sEnvMap, vTexCoord).rgb;
+      vec2 screenuv = vScreenPos.xy / vScreenPos.w;
 
-      vec2 xy = vScreenPos.xy / vScreenPos.w;
+      vec4 lum = vec4(0.299, 0.587, 0.114, 0);
+
+      float grayscale = dot(texture2D(sEnvMap, screenuv), lum);
+      vec3 rgb = texture2D(sEnvMap, screenuv).rgb;
+
+
+      vec2 xy = (vScreenPos.xy / vScreenPos.w)*(1.0/cGBufferInvSize);
       int x = int(mod(xy.x, 8));
       int y = int(mod(xy.y, 8));
 
@@ -86,7 +90,8 @@ void PS()
       finalRGB.b = find_closest(x, y, rgb.b);
 
       float final = find_closest(x, y, grayscale);
-      gl_FragColor = vec4(finalRGB, 1.0);
-      //gl_FragColor = vec4(0.299, 0.587, 0.114, 0);
+      //gl_FragColor = vec4(finalRGB, 1.0);
+      gl_FragColor = vec4(final,final,final,1.0);
+      //gl_FragColor = vec4(0.0);
     #endif
 }
