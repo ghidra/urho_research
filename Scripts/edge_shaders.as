@@ -89,7 +89,7 @@ void SetupViewport(){
     // at minimum. Additionally we could configure the viewport screen size and the rendering path (eg. forward / deferred) to
     // use, but now we just use full screen and default render path configured in the engine command line options
     Viewport@ viewport = Viewport(scene_, cameraNode.GetComponent("Camera"));
-    XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Forward.xml");
+    XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Edge.xml");
     viewport.SetRenderPath(xml);
     renderer.viewports[0] = viewport;
 }
