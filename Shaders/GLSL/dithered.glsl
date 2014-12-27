@@ -16,10 +16,8 @@ uniform vec4 cObjectColor;
 
 #ifdef COMPILEPS
 
-float find_closest(int x, int y, float c0){
-
-  int d[64];
-
+int d[64];
+void dither_array(){
   d[0]=0;d[1]=32;d[2]=8;d[3]=40;d[4]=2;d[5]=34;d[6]=10;d[7]=42;
   d[8]=48;d[9]=16;d[10]=56;d[11]=24;d[12]=50;d[13]=18;d[14]=58;d[15]=26;
   d[16]=12;d[17]=44;d[18]=4;d[19]=36;d[20]=14;d[21]=46;d[22]=6;d[23]=38;
@@ -28,6 +26,9 @@ float find_closest(int x, int y, float c0){
   d[40]=51;d[41]=19;d[42]=59;d[43]=27;d[44]=49;d[45]=17;d[46]=57;d[47]=25;
   d[48]=15;d[49]=47;d[50]=7;d[51]=39;d[52]=13;d[53]=45;d[54]=5;d[55]=37;
   d[56]=63;d[57]=31;d[58]=55;d[59]=23;d[60]=61;d[61]=29;d[62]=53;d[63]=21;
+}
+
+float find_closest(int x, int y, float c0){
 
   float limit = 0.0;
   if(x < 8){
@@ -72,6 +73,7 @@ void PS()
     #endif
 
     #ifdef EDGE
+      dither_array();
       vec2 screenuv = vScreenPos.xy / vScreenPos.w;
 
       vec4 lum = vec4(0.299, 0.587, 0.114, 0);
