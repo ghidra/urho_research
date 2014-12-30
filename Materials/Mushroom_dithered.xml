@@ -1,5 +1,5 @@
 <material>
-  <technique name="Techniques/research/dithered.xml" />
+  <technique name="Techniques/research/basic.xml" /><!--put this back to dithered.xml for per object dither-->
   <texture unit="diffuse" name="Textures/Mushroom.dds" />
   <parameter name="MatSpecColor" value="0.1 0.1 0.1 16" />
   <parameter name="ObjectColor" value="1.0 1.0 1.0 16" />
