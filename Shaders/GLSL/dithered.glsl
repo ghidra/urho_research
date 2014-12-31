@@ -109,10 +109,10 @@ void PS()
       int x = int(mod(xy.x, 4));
       int y = int(mod(xy.y, 4));
 
-      //vec3 finalRGB;
-      //finalRGB.r = find_closest(x, y, rgb.r);
-      //finalRGB.g = find_closest(x, y, rgb.g);
-      //finalRGB.b = find_closest(x, y, rgb.b);
+      vec3 finalRGB;
+      finalRGB.r = find_closest(x, y, rgb.r);
+      finalRGB.g = find_closest(x, y, rgb.g);
+      finalRGB.b = find_closest(x, y, rgb.b);
 
       float final = find_closest(x, y, grayscale);
       //gl_FragColor = vec4(finalRGB, 1.0);

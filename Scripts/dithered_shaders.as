@@ -9,6 +9,9 @@ void Start(){
 }
 
 void CreateScene(){
+  graphics.SetMode(1920/2,1080/2,false,false,true,false,true,4);
+  //int width, int height, bool fullscreen, bool borderless, bool resizable, bool vsync, bool tripleBuffer, int multiSample
+
   scene_ = Scene();
 
   // Create the Octree component to the scene. This is required before adding any drawable components, or else nothing will
@@ -58,7 +61,7 @@ void CreateScene(){
     Color myCola = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
     rmat.shaderParameters["ObjectColor"]=Variant(myCola);//single quotes didnt work
     mushroomObject.material = rmat;
-    
+
     mushroomObject.castShadows = true;
   }
 
