@@ -7,4 +7,5 @@
   <pass name="deferred" psdefines="DEFERRED" />
   <pass name="depth" vs="Depth" ps="Depth" />
   <pass name="shadow" vs="Shadow" ps="Shadow" />
+  <pass name="edgebase" vs="edge" ps="edge" vsdefines="BASE" psdefines="BASE"/>
 </technique>

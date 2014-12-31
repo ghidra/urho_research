@@ -53,7 +53,12 @@ void CreateScene(){
     mushroomNode.SetScale(0.5f + Random(2.0f));
     StaticModel@ mushroomObject = mushroomNode.CreateComponent("StaticModel");
     mushroomObject.model = cache.GetResource("Model", "Models/Mushroom.mdl");
-    mushroomObject.material = cache.GetResource("Material", "Materials/research/Mushroom_dithered.xml");
+    Material@ mat = cache.GetResource("Material", "Materials/research/Mushroom_dithered.xml");
+    Material@ rmat = mat.Clone();
+    Color myCola = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
+    rmat.shaderParameters["ObjectColor"]=Variant(myCola);//single quotes didnt work
+    mushroomObject.material = rmat;
+    
     mushroomObject.castShadows = true;
   }
 

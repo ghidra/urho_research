@@ -1,13 +1,20 @@
 <renderpath>
-    <!--<rendertarget name="gbuffer" sizedivisor="4 4" format="rgba"/>-->
+    <!--<rendertarget name="gbuffer" sizedivisor="2 2" format="rgba"/>-->
     <rendertarget name="dither" sizedivisor="2 2" format="rgba"/>
+    <rendertarget name="edge" sizedivisor="2 2" format="rgba"/>
     <command type="clear" color="fog" depth="1.0" stencil="0" />
     <command type="scenepass" pass="base" vertexlights="true" metadata="base" />
     <command type="forwardlights" pass="light" />
-    <command type="quad" vs="dithered" ps="dithered" vsdefines="EDGE" psdefines="EDGE"><!--output="dither" if i remove output, it will write to the gbuffer-->
+    <command type="quad" vs="dithered" ps="dithered" vsdefines="EDGE" psdefines="EDGE" output="dither"><!--output="dither" if i remove output, it will write to the gbuffer-->
       <texture unit="environment" name="viewport" />
     </command>
-    <command type="scenepass" pass="dithered">
-      <texture unit="dither" name="dither" />
+    <command type="clear" color="fog" depth="1.0" stencil="0" />
+    <command type="scenepass" pass="edgebase" vertexlights="true" metadata="base" />
+    <command type="quad" vs="edge" ps="edge" vsdefines="EDGE" psdefines="EDGE" output="edge"><!--output="dither" if i remove output, it will write to the gbuffer-->
+      <texture unit="environment" name="viewport" />
+    </command>
+    <command type="quad" pass="dithered" vs="dither_process" ps="dither_process">
+      <texture unit="diffuse" name="dither" />
+      <texture unit="normal" name="edge" />
     </command>
 </renderpath>
