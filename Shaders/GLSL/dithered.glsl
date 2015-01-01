@@ -97,7 +97,8 @@ void PS()
       vec2 screenuv = vScreenPos.xy / vScreenPos.w;
 
       //vec4 lum = vec4(0.299, 0.587, 0.114, 0);
-      vec4 lum = vec4(0.15, 0.15, 0.15, 0);
+      //vec4 lum = vec4(0.15, 0.15, 0.15, 0);
+      vec4 lum = vec4(0.1, 0.2, 0.15, 0);
 
       float grayscale = dot(texture2D(sEnvMap, screenuv), lum);
       vec3 rgb = texture2D(sEnvMap, screenuv).rgb;

@@ -17,6 +17,16 @@ void VS()
 }
 
 void PS(){
-      vec4 color = texture2D(sEnvMap,vScreenPos.xy / vScreenPos.w);
+
+      vec2 uv = vScreenPos.xy / vScreenPos.w;
+      vec2 s = 1.0/cGBufferInvSize.xy;//ie 1920
+
+      vec2 uv_flr = floor(uv*s);
+      vec2 uv_rescl = uv_flr*cGBufferInvSize.xy;
+      //vec2 uv_rescl = vec2(uv);
+
+      //vec4 color = texture2D(sEnvMap,vScreenPos.xy / vScreenPos.w);
+      vec4 color = texture2D(sEnvMap,uv_rescl,1.0);
+
       gl_FragColor = color;
 }
