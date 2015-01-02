@@ -36,6 +36,7 @@ if [ -d $URHOPATH ];then
         "Techniques") make_alias $FOLDER $SCRIPTPATH"/"$FOLDER $URHOCOREDATAPATH$FOLDER"/research" ;;
         "Shaders") make_alias $FOLDER $SCRIPTPATH"/"$FOLDER $URHOCOREDATAPATH$FOLDER"/research" ;;
         "Materials") make_alias $FOLDER $SCRIPTPATH"/"$FOLDER $URHODATAPATH$FOLDER"/research" ;;
+        "Models") make_alias $FOLDER $SCRIPTPATH"/"$FOLDER $URHODATAPATH$FOLDER"/research" ;;
         *) echo "no commands for:" $FOLDER ;;
       esac
 

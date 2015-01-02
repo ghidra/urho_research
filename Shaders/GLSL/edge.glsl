@@ -27,7 +27,7 @@ uniform float cObjectBlend;
 float color_difference(in vec4 sc, in vec4 nc){
   float dif = abs(sc.r-nc.r)+abs(sc.g-nc.g)+abs(sc.b-nc.b);
   float adif = 0.0;
-  if (dif>0.5){//threshold or tolerence
+  if (dif>0.01){//threshold or tolerence
     adif=1.0;
   }
   return adif;
