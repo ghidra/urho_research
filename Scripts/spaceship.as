@@ -74,7 +74,8 @@ void CreateScene(){
   ssn.SetScale(0.5f + Random(2.0f));
   StaticModel@ sso = ssn.CreateComponent("StaticModel");
   sso.model = cache.GetResource("Model", "Models/research/spaceship_02.mdl");
-  Material@ smat = cache.GetResource("Material", "Materials/research/spaceship.xml");
+  //Material@ smat = cache.GetResource("Material", "Materials/research/spaceship.xml");
+  Material@ smat = cache.GetResource("Material", "Materials/research/edge.xml");
   Material@ srmat = smat.Clone();
   Color myCola = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
   srmat.shaderParameters["ObjectColor"]=Variant(myCola);//single quotes didnt work
@@ -110,7 +111,8 @@ void SetupViewport()
   // at minimum. Additionally we could configure the viewport screen size and the rendering path (eg. forward / deferred) to
   // use, but now we just use full screen and default render path configured in the engine command line options
   Viewport@ viewport = Viewport(scene_, cameraNode.GetComponent("Camera"));
-  XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Dithered_quad.xml");
+  //XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Dithered_quad.xml");
+  XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/edge.xml");
   viewport.SetRenderPath(xml);
   renderer.viewports[0] = viewport;
 }
