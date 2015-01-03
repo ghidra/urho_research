@@ -65,6 +65,9 @@ void CreateScene(){
     mushroomObject.castShadows = true;
   }
 
+  //-----------------
+  //-----------------
+
   // Create a scene node for the camera, which we will move around
   // The camera will use default settings (1000 far clip distance, 45 degrees FOV, set aspect ratio automatically)
   cameraNode = scene_.CreateChild("Camera");

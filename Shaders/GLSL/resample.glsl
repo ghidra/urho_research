@@ -28,8 +28,8 @@ void PS(){
       vec2 uv = vScreenPos.xy / vScreenPos.w;
       vec2 shalf = 1.0/(cGBufferInvSize.xy);//this is actually the size of the render halfsize for example
       vec2 s = shalf*2.0;//ie 1920x1080, this is the fullsize
-
-      vec2 mult=(2.0*(uv*s) + 1.0)/(4.0*shalf);
+      //http://stackoverflow.com/questions/5879403/opengl-texture-coordinates-in-pixel-space/5879551#5879551
+      vec2 mult=(2.0*(uv*s) + 0.5)/(2.0*s);
 
       //vec2 nuv = uv-(cGBufferInvSize.xy*300.0);
 
