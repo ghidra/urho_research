@@ -48,6 +48,6 @@ void PS(){
 
       //if(IsEdge(sEnvMap,vScreenPos.xy / vScreenPos.w, cGBufferInvSize)>1.0){
       //}
-      //gl_FragColor = dither+outline;
-      gl_FragColor = outline;
+      gl_FragColor = dither+outline;
+      //gl_FragColor = outline;
 }

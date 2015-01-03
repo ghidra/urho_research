@@ -15,9 +15,9 @@
       <texture unit="environment" name="viewport" />
     </command>
 
-    <!--<command type="quad" vs="edge" ps="edge" vsdefines="EDGE" psdefines="EDGE" output="edge">
+    <command type="quad" vs="edge" ps="edge" vsdefines="EDGE" psdefines="EDGE" output="edge">
       <texture unit="environment" name="viewport" />
-    </command>-->
+    </command>
 
     <!--<command type="quad" vs="edge" ps="edge" vsdefines="EDGE" psdefines="EDGE" output="edge">
       <texture unit="environment" name="viewport" />
