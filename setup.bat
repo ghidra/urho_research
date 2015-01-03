@@ -28,8 +28,9 @@ if exist "%URHOPATH%" (
     if "!myfolder!"=="Scripts" call:makeAlias "!myfolder!" "!FOLDER!" "!URHODATAPATH!!myfolder!\research"
     if "!myfolder!"=="RenderPaths" call:makeAlias "!myfolder!" "!FOLDER!" "!URHOCOREDATAPATH!!myfolder!\research"
     if "!myfolder!"=="Techniques" call:makeAlias "!myfolder!" "!FOLDER!" "!URHOCOREDATAPATH!!myfolder!\research"
-    if "!myfolder!"=="Shaders" call:makeAlias "!myfolder!" "!FOLDER!" "!URHOCOREDATAPATH!!myfolder!\research"
+    if "!myfolder!"=="Shaders" call:makeAlias "!myfolder!" "!FOLDER!" "!URHODATAPATH!!myfolder!\research"
     if "!myfolder!"=="Materials" call:makeAlias "!myfolder!" "!FOLDER!" "!URHODATAPATH!!myfolder!\research"
+    if "!myfolder!"=="Models" call:makeAlias "!myfolder!" "!FOLDER!" "!URHODATAPATH!!myfolder!\research"
 
   )
 

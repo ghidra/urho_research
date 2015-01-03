@@ -9,7 +9,7 @@ void Start(){
 }
 
 void CreateScene(){
-  //graphics.SetMode(1920/2,1080/2,false,false,true,false,true,4);
+  //graphics.SetMode(1280,800,false,false,false,false,false,1);
   //int width, int height, bool fullscreen, bool borderless, bool resizable, bool vsync, bool tripleBuffer, int multiSample
 
   scene_ = Scene();
@@ -112,7 +112,7 @@ void SetupViewport()
   // use, but now we just use full screen and default render path configured in the engine command line options
   Viewport@ viewport = Viewport(scene_, cameraNode.GetComponent("Camera"));
   //XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Dithered_quad.xml");
-  XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/edge.xml");
+  XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Edge.xml");
   viewport.SetRenderPath(xml);
   renderer.viewports[0] = viewport;
 }

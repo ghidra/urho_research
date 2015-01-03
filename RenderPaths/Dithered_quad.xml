@@ -1,7 +1,7 @@
 <renderpath>
     <!--<rendertarget name="resample" sizedivisor="2 2" filter="false" format="rgba"/>-->
-    <rendertarget name="dither" sizedivisor="2 2" format="rgba"/>
-    <rendertarget name="edge" sizedivisor="2 2" format="rgba"/>
+    <rendertarget name="dither" sizedivisor="2 2" filter="false" format="rgba"/>
+    <rendertarget name="edge" sizedivisor="2 2" filter="false" format="rgba"/>
     <command type="clear" color="fog" depth="1.0" stencil="0" />
     <command type="scenepass" pass="base" vertexlights="true" metadata="base" />
     <command type="forwardlights" pass="light" />
@@ -11,13 +11,13 @@
     <command type="clear" color="fog" depth="1.0" stencil="0" />
     <command type="scenepass" pass="edgebase" vertexlights="true" metadata="base" />
 
-    <command type="quad" vs="resample" ps="resample"><!--output="edge"-->
+    <command type="quad" vs="resample" ps="resample" output="edge"><!--output="edge"-->
       <texture unit="environment" name="viewport" />
     </command>
 
-    <command type="quad" vs="edge" ps="edge" vsdefines="EDGE" psdefines="EDGE" output="edge">
+    <!--<command type="quad" vs="edge" ps="edge" vsdefines="EDGE" psdefines="EDGE" output="edge">
       <texture unit="environment" name="viewport" />
-    </command>
+    </command>-->
 
     <!--<command type="quad" vs="edge" ps="edge" vsdefines="EDGE" psdefines="EDGE" output="edge">
       <texture unit="environment" name="viewport" />
