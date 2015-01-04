@@ -69,9 +69,9 @@ void CreateScene(){
   //-----------------
   //SPACESHIP
   Node@ ssn = scene_.CreateChild("SPACESHIP");
-  ssn.position = Vector3(Random(90.0f) - 45.0f, 0.0f, Random(90.0f) - 45.0f);
-  ssn.rotation = Quaternion(0.0f, Random(360.0f), 0.0f);
-  ssn.SetScale(0.5f + Random(2.0f));
+  //ssn.position = Vector3(Random(90.0f) - 45.0f, 0.0f, Random(90.0f) - 45.0f);
+  //ssn.rotation = Quaternion(0.0f, Random(360.0f), 0.0f);
+  //ssn.SetScale(0.5f + Random(2.0f));
   StaticModel@ sso = ssn.CreateComponent("StaticModel");
   sso.model = cache.GetResource("Model", "Models/research/spaceship_02.mdl");
   //Material@ smat = cache.GetResource("Material", "Materials/research/spaceship.xml");
