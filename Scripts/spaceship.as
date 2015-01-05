@@ -1,5 +1,10 @@
 #include "Scripts/Utilities/Sample.as"
 
+Scene@ scene_;
+Node@ cameraNode;
+float yaw = 0.0f;
+float pitch = 0.0f;
+
 void Start(){
   SampleStart();
   CreateScene();

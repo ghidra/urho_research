@@ -1,0 +1,33 @@
+[Sun Jan 04 21:05:52 2015] INFO: Opened log file Urho3D.log
+[Sun Jan 04 21:05:52 2015] INFO: Created 3 worker threads
+[Sun Jan 04 21:05:52 2015] INFO: Added resource path D:/projects/urho/Urho3D-1.31/Bin/CoreData/
+[Sun Jan 04 21:05:52 2015] INFO: Added resource path D:/projects/urho/Urho3D-1.31/Bin/Data/
+[Sun Jan 04 21:05:53 2015] INFO: Set screen mode 1920x1080 fullscreen
+[Sun Jan 04 21:05:53 2015] INFO: Initialized input
+[Sun Jan 04 21:05:53 2015] INFO: Initialized user interface
+[Sun Jan 04 21:05:53 2015] INFO: Initialized renderer
+[Sun Jan 04 21:05:53 2015] INFO: Set audio mode 44100 Hz stereo interpolated
+[Sun Jan 04 21:05:53 2015] INFO: /Scripts/research/dithered_shaders.as:11,1 Compiling void CreateScene()
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:15,3 'scene_' is not declared
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:21,9 Illegal operation on 'int'
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:26,27 Illegal operation on 'int'
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:35,27 Illegal operation on 'int'
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:53,32 Illegal operation on 'int'
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:73,22 Illegal operation on 'int'
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:73,3 'cameraNode' is not declared
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:74,13 Illegal operation on 'int'
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:77,13 'position' is not a member of 'int'
+[Sun Jan 04 21:05:53 2015] INFO: /Scripts/research/dithered_shaders.as:93,1 Compiling void SetupViewport()
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:98,41 'cameraNode' is not declared
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:98,33 'scene_' is not declared
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:98,24 Can't implicitly convert from 'const int' to 'Viewport@&'.
+[Sun Jan 04 21:05:53 2015] INFO: /Scripts/research/dithered_shaders.as:104,1 Compiling void MoveCamera(float)
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:117,5 'yaw' is not declared
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:118,5 'pitch' is not declared
+[Sun Jan 04 21:05:53 2015] WARNING: /Scripts/research/dithered_shaders.as:119,13 Float value truncated in implicit conversion to integer
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:122,5 'cameraNode' is not declared
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:127,17 Illegal operation on 'int'
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:129,19 Illegal operation on 'int'
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:131,21 Illegal operation on 'int'
+[Sun Jan 04 21:05:53 2015] ERROR: /Scripts/research/dithered_shaders.as:133,23 Illegal operation on 'int'
+[Sun Jan 04 21:05:53 2015] ERROR: Failed to compile script module /Scripts/research/dithered_shaders.as

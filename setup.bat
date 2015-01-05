@@ -28,7 +28,7 @@ if exist "%URHOPATH%" (
     if "!myfolder!"=="Scripts" call:makeAlias "!myfolder!" "!FOLDER!" "!URHODATAPATH!!myfolder!\research"
     if "!myfolder!"=="RenderPaths" call:makeAlias "!myfolder!" "!FOLDER!" "!URHOCOREDATAPATH!!myfolder!\research"
     if "!myfolder!"=="Techniques" call:makeAlias "!myfolder!" "!FOLDER!" "!URHOCOREDATAPATH!!myfolder!\research"
-    if "!myfolder!"=="Shaders" call:makeAlias "!myfolder!" "!FOLDER!" "!URHODATAPATH!!myfolder!\research"
+    if "!myfolder!"=="Shaders" call:makeAlias "!myfolder!" "!FOLDER!" "!URHODATAPATH!!myfolder!"
     if "!myfolder!"=="Materials" call:makeAlias "!myfolder!" "!FOLDER!" "!URHODATAPATH!!myfolder!\research"
     if "!myfolder!"=="Models" call:makeAlias "!myfolder!" "!FOLDER!" "!URHODATAPATH!!myfolder!\research"
 
@@ -43,5 +43,9 @@ Echo -----------------------
 GOTO:EOF
 
 :makeAlias
-mklink /J %~3 %~2
+if exist %~3 (
+  echo %~3 already exists
+) else (
+  mklink /J %~3 %~2
+)
 GOTO:EOF
