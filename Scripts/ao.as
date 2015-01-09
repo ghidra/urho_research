@@ -32,7 +32,7 @@ void CreateScene(){
   planeNode.scale = Vector3(100.0f, 1.0f, 100.0f);
   StaticModel@ planeObject = planeNode.CreateComponent("StaticModel");
   planeObject.model = cache.GetResource("Model", "Models/Plane.mdl");
-  planeObject.material = cache.GetResource("Material", "Materials/research/StoneTiled_dithered.xml");
+  planeObject.material = cache.GetResource("Material", "Materials/research/Normal.xml");
 
   // Create a directional light to the world so that we can see something. The light scene node's orientation controls the
   // light direction; we will use the SetDirection() function which calculates the orientation from a forward direction vector.
@@ -61,10 +61,10 @@ void CreateScene(){
     mushroomNode.SetScale(0.5f + Random(2.0f));
     StaticModel@ mushroomObject = mushroomNode.CreateComponent("StaticModel");
     mushroomObject.model = cache.GetResource("Model", "Models/Mushroom.mdl");
-    Material@ mat = cache.GetResource("Material", "Materials/research/Mushroom_dithered.xml");
+    Material@ mat = cache.GetResource("Material", "Materials/research/Normal.xml");
     Material@ rmat = mat.Clone();
     Color myCola = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
-    rmat.shaderParameters["ObjectColor"]=Variant(myCola);//single quotes didnt work
+    //rmat.shaderParameters["ObjectColor"]=Variant(myCola);//single quotes didnt work
     mushroomObject.material = rmat;
 
     mushroomObject.castShadows = true;
@@ -101,7 +101,7 @@ void SetupViewport()
   // at minimum. Additionally we could configure the viewport screen size and the rendering path (eg. forward / deferred) to
   // use, but now we just use full screen and default render path configured in the engine command line options
   Viewport@ viewport = Viewport(scene_, cameraNode.GetComponent("Camera"));
-  XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Dithered_quad.xml");
+  XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/ao.xml");
   viewport.SetRenderPath(xml);
   renderer.viewports[0] = viewport;
 }

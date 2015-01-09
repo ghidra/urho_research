@@ -1,212 +1,107 @@
-#include "Uniforms.glsl"
-#include "Samplers.glsl"
-#include "Transform.glsl"
-#include "ScreenPos.glsl"
-#include "Lighting.glsl"
-#include "Fog.glsl"
+#include <gd.h>
+#include <stdio.h>
+#include <math.h>
+#include <algorithm> /* For std::sort() */
 
-varying vec2 vTexCoord;
-varying vec2 vDetailTexCoord;
-varying vec3 vNormal;
-varying vec4 vWorldPos;
-#ifdef PERPIXEL
-    #ifdef SHADOW
-        varying vec4 vShadowPos[NUMCASCADES];
-    #endif
-    #ifdef SPOTLIGHT
-        varying vec4 vSpotPos;
-    #endif
-    #ifdef POINTLIGHT
-        varying vec3 vCubeMaskVec;
-    #endif
-#else
-    varying vec3 vVertexLight;
-    varying vec4 vScreenPos;
-    #ifdef ENVCUBEMAP
-        varying vec3 vReflectionVec;
-    #endif
-    #if defined(LIGHTMAP) || defined(AO)
-        varying vec2 vTexCoord2;
-    #endif
-#endif
+/* 8x8 threshold map (note: the patented pattern dithering algorithm uses 4x4) */
+static const unsigned char map[8*8] = {
+     0,48,12,60, 3,51,15,63,
+    32,16,44,28,35,19,47,31,
+     8,56, 4,52,11,59, 7,55,
+    40,24,36,20,43,27,39,23,
+     2,50,14,62, 1,49,13,61,
+    34,18,46,30,33,17,45,29,
+    10,58, 6,54, 9,57, 5,53,
+    42,26,38,22,41,25,37,21 };
 
-uniform sampler2D sWeightMap0;
-uniform sampler2D sDetailMap1;
-uniform sampler2D sDetailMap2;
-uniform sampler2D sDetailMap3;
+/* Palette */
+static const unsigned pal[16] =
+{ 0x080000,0x201A0B,0x432817,0x492910, 0x234309,0x5D4F1E,0x9C6B20,0xA9220F,
+  0x2B347C,0x2B7409,0xD0CA40,0xE8A077, 0x6A94AB,0xD5C4B3,0xFCE76E,0xFCFAE2 };
 
-uniform vec2 cDetailTiling;
+/* Luminance for each palette entry, to be initialized as soon as the program begins */
+static unsigned luma[16];
 
-void VS()
+bool PaletteCompareLuma(unsigned index1, unsigned index2)
 {
-    mat4 modelMatrix = iModelMatrix;
-    vec3 worldPos = GetWorldPos(modelMatrix);
-    gl_Position = GetClipPos(worldPos);
-    vNormal = GetWorldNormal(modelMatrix);
-    vWorldPos = vec4(worldPos, GetDepth(gl_Position));
-    vTexCoord = GetTexCoord(iTexCoord);
-    vDetailTexCoord = cDetailTiling * vTexCoord;
-
-    #ifdef PERPIXEL
-        // Per-pixel forward lighting
-        vec4 projWorldPos = vec4(worldPos, 1.0);
-
-        #ifdef SHADOW
-            // Shadow projection: transform from world space to shadow space
-            for (int i = 0; i < NUMCASCADES; i++)
-                vShadowPos[i] = GetShadowPos(i, projWorldPos);
-        #endif
-
-        #ifdef SPOTLIGHT
-            // Spotlight projection: transform from world space to projector texture coordinates
-            vSpotPos = cLightMatrices[0] * projWorldPos;
-        #endif
-
-        #ifdef POINTLIGHT
-            vCubeMaskVec = mat3(cLightMatrices[0][0].xyz, cLightMatrices[0][1].xyz, cLightMatrices[0][2].xyz) * (worldPos - cLightPos.xyz);
-        #endif
-    #else
-        // Ambient & per-vertex lighting
-        #if defined(LIGHTMAP) || defined(AO)
-            // If using lightmap, disregard zone ambient light
-            // If using AO, calculate ambient in the PS
-            vVertexLight = vec3(0.0, 0.0, 0.0);
-            vTexCoord2 = iTexCoord2;
-        #else
-            vVertexLight = GetAmbient(GetZonePos(worldPos));
-        #endif
-
-        #ifdef NUMVERTEXLIGHTS
-            for (int i = 0; i < NUMVERTEXLIGHTS; ++i)
-                vVertexLight += GetVertexLight(i, worldPos, vNormal) * cVertexLights[i * 3].rgb;
-        #endif
-
-        vScreenPos = GetScreenPos(gl_Position);
-
-        #ifdef ENVCUBEMAP
-            vReflectionVec = worldPos - cCameraPos;
-        #endif
-    #endif
+    return luma[index1] < luma[index2];
 }
-
-void PS()
+double ColorCompare(int r1,int g1,int b1, int r2,int g2,int b2)
 {
-    // Get material diffuse albedo
-    vec3 weights = texture2D(sWeightMap0, vTexCoord).rgb;
-    float sumWeights = weights.r + weights.g + weights.b;
-    weights /= sumWeights;
-    vec4 diffColor = cMatDiffColor * (
-        weights.r * texture2D(sDetailMap1, vDetailTexCoord) +
-        weights.g * texture2D(sDetailMap2, vDetailTexCoord) +
-        weights.b * texture2D(sDetailMap3, vDetailTexCoord)
-    );
-
-    // Get material specular albedo
-    vec3 specColor = cMatSpecColor.rgb;
-
-    // Get normal
-    vec3 normal = normalize(vNormal);
-
-    // Get fog factor
-    #ifdef HEIGHTFOG
-        float fogFactor = GetHeightFogFactor(vWorldPos.w, vWorldPos.y);
-    #else
-        float fogFactor = GetFogFactor(vWorldPos.w);
-    #endif
-
-    #if defined(PERPIXEL)
-        // Per-pixel forward lighting
-        vec3 lightColor;
-        vec3 lightDir;
-        vec3 finalColor;
-
-        float diff = GetDiffuse(normal, vWorldPos.xyz, lightDir);
-
-        #ifdef SHADOW
-            diff *= GetShadow(vShadowPos, vWorldPos.w);
-        #endif
-
-        #if defined(SPOTLIGHT)
-            lightColor = vSpotPos.w > 0.0 ? texture2DProj(sLightSpotMap, vSpotPos).rgb * cLightColor.rgb : vec3(0.0, 0.0, 0.0);
-        #elif defined(CUBEMASK)
-            lightColor = textureCube(sLightCubeMap, vCubeMaskVec).rgb * cLightColor.rgb;
-        #else
-            lightColor = cLightColor.rgb;
-        #endif
-
-        #ifdef SPECULAR
-            float spec = GetSpecular(normal, cCameraPosPS - vWorldPos.xyz, lightDir, cMatSpecColor.a);
-            finalColor = diff * lightColor * (diffColor.rgb + spec * specColor * cLightColor.a);
-        #else
-            finalColor = diff * lightColor * diffColor.rgb;
-        #endif
-
-        #ifdef AMBIENT
-            finalColor += cAmbientColor * diffColor.rgb;
-            finalColor += cMatEmissiveColor;
-            gl_FragColor = vec4(GetFog(finalColor, fogFactor), diffColor.a);
-        #else
-            gl_FragColor = vec4(GetLitFog(finalColor, fogFactor), diffColor.a);
-        #endif
-    #elif defined(PREPASS)
-        // Fill light pre-pass G-Buffer
-        float specPower = cMatSpecColor.a / 255.0;
-
-        gl_FragData[0] = vec4(normal * 0.5 + 0.5, specPower);
-        gl_FragData[1] = vec4(EncodeDepth(vWorldPos.w), 0.0);
-    #elif defined(DEFERRED)
-        // Fill deferred G-buffer
-        float specIntensity = specColor.g;
-        float specPower = cMatSpecColor.a / 255.0;
-
-        gl_FragData[0] = vec4(GetFog(vVertexLight * diffColor.rgb, fogFactor), 1.0);
-        gl_FragData[1] = fogFactor * vec4(diffColor.rgb, specIntensity);
-        gl_FragData[2] = vec4(normal * 0.5 + 0.5, specPower);
-        gl_FragData[3] = vec4(EncodeDepth(vWorldPos.w), 0.0);
-    #else
-        // Ambient & per-vertex lighting
-        vec3 finalColor = vVertexLight * diffColor.rgb;
-
-        #ifdef MATERIAL
-            // Add light pre-pass accumulation result
-            // Lights are accumulated at half intensity. Bring back to full intensity now
-            vec4 lightInput = 2.0 * texture2DProj(sLightBuffer, vScreenPos);
-            vec3 lightSpecColor = lightInput.a * lightInput.rgb / max(GetIntensity(lightInput.rgb), 0.001);
-
-            finalColor += lightInput.rgb * diffColor.rgb + lightSpecColor * specColor;
-        #endif
-
-        gl_FragColor = vec4(GetFog(finalColor, fogFactor), diffColor.a);
-    #endif
+    double luma1 = (r1*299 + g1*587 + b1*114) / (255.0*1000);
+    double luma2 = (r2*299 + g2*587 + b2*114) / (255.0*1000);
+    double lumadiff = luma1-luma2;
+    double diffR = (r1-r2)/255.0, diffG = (g1-g2)/255.0, diffB = (b1-b2)/255.0;
+    return (diffR*diffR*0.299 + diffG*diffG*0.587 + diffB*diffB*0.114)*0.75
+         + lumadiff*lumadiff;
 }
-
-
-/*#include "Uniforms.glsl"
-#include "Samplers.glsl"
-#include "Transform.glsl"
-
-varying vec4 vWorldPos;
-
-void VS()
+struct MixingPlan
 {
-    mat4 modelMatrix = iModelMatrix;
-    vec3 worldPos = GetWorldPos(modelMatrix);
-    gl_Position = GetClipPos(worldPos);
-    vWorldPos = vec4(worldPos, GetDepth(gl_Position));
-}
-
-void PS()
+    unsigned colors[64];
+};
+MixingPlan DeviseBestMixingPlan(unsigned color)
 {
-    float cx = mod(vWorldPos.x,10);
-    float cz = mod(vWorldPos.z,10);
-    float e = 0.5;
+    MixingPlan result = { {0} };
+    const int src[3] = { color>>16, (color>>8)&0xFF, color&0xFF };
 
-    if(!((cx > 10.0-e && cx < 10.0+e) || (cz > 10.0-e && cz < 10.0+e)) ) {//inside a square
-      float dist = max(abs(cx-5.0), abs(cz-5.0)) / 10.0;
-      if(dist > 0.8) dist * 0.5;
-      gl_FragColor = vec4(0.0, 0.0, 0.0, dist);
-    }else{ //outside a square
-      gl_FragColor = normalize(vec4(1.0, 1.0, 1.0, 0.0));
+    const double X = 0.09;  // Error multiplier
+    int e[3] = { 0, 0, 0 }; // Error accumulator
+    for(unsigned c=0; c<64; ++c)
+    {
+        // Current temporary value
+        int t[3] = { src[0] + e[0] * X, src[1] + e[1] * X, src[2] + e[2] * X };
+        // Clamp it in the allowed RGB range
+        if(t[0]<0) t[0]=0; else if(t[0]>255) t[0]=255;
+        if(t[1]<0) t[1]=0; else if(t[1]>255) t[1]=255;
+        if(t[2]<0) t[2]=0; else if(t[2]>255) t[2]=255;
+        // Find the closest color from the palette
+        double least_penalty = 1e99;
+        unsigned chosen = c%16;
+        for(unsigned index=0; index<16; ++index)
+        {
+            const unsigned color = pal[index];
+            const int pc[3] = { color>>16, (color>>8)&0xFF, color&0xFF };
+            double penalty = ColorCompare(pc[0],pc[1],pc[2], t[0],t[1],t[2]);
+            if(penalty < least_penalty)
+                { least_penalty = penalty; chosen=index; }
+        }
+        // Add it to candidates and update the error
+        result.colors[c] = chosen;
+        unsigned color = pal[chosen];
+        const int pc[3] = { color>>16, (color>>8)&0xFF, color&0xFF };
+        e[0] += src[0]-pc[0];
+        e[1] += src[1]-pc[1];
+        e[2] += src[2]-pc[2];
     }
-    //gl_FragColor = normalize(vec4(1.0, 1.0, 1.0, 0.0));
-}*/
+    // Sort the colors according to luminance
+    std::sort(result.colors, result.colors+64, PaletteCompareLuma);
+    return result;
+}
+
+int main(int argc, char**argv)
+{
+    FILE* fp = fopen(argv[1], "rb");
+    gdImagePtr srcim = gdImageCreateFromPng(fp);
+    fclose(fp);
+
+    unsigned w = gdImageSX(srcim), h = gdImageSY(srcim);
+    gdImagePtr im = gdImageCreate(w, h);
+    for(unsigned c=0; c<16; ++c)
+    {
+        unsigned r = pal[c]>>16, g = (pal[c]>>8) & 0xFF, b = pal[c] & 0xFF;
+        gdImageColorAllocate(im, r,g,b);
+        luma[c] = r*299 + g*587 + b*114;
+    }
+  #pragma omp parallel for
+    for(unsigned y=0; y<h; ++y)
+        for(unsigned x=0; x<w; ++x)
+        {
+            unsigned color = gdImageGetTrueColorPixel(srcim, x, y);
+            unsigned map_value = map[(x & 7) + ((y & 7) << 3)];
+            MixingPlan plan = DeviseBestMixingPlan(color);
+            gdImageSetPixel(im, x,y, plan.colors[ map_value ]);
+        }
+    fp = fopen(argv[2], "wb");
+    gdImagePng(im, fp);
+    fclose(fp); gdImageDestroy(im); gdImageDestroy(srcim);
+}
