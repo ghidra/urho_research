@@ -1,0 +1,25 @@
+<renderpath>
+    <!--<rendertarget name="resample" sizedivisor="2 2" filter="false" format="rgba"/>-->
+    <rendertarget name="dither" sizedivisor="2 2" filter="false" format="rgba"/>
+    <rendertarget name="edge" sizedivisor="2 2" filter="false" format="rgba"/>
+    <command type="clear" color="fog" depth="1.0" stencil="0" />
+    <command type="scenepass" pass="base" vertexlights="true" metadata="base" />
+    <command type="forwardlights" pass="light" />
+    <command type="quad" vs="dither_palette" ps="dither_palette" output="dither"><!--output="dither" if i remove output, it will write to the gbuffer-->
+      <texture unit="environment" name="viewport" />
+      <parameter name="Palette" value="0.204 0.251 0.895 0.93 0.075 0.161 0.459 0.6 0.142 0.275 0.381 0.491 1.0 1.0 1.0 1.0" /> <!--column major-->
+      <!--<parameter name="Palette" value="0.204 0.075 0.142 1.0 0.251 0.161 0.275 1.0 0.895 0.459 0.381 1.0 0.93 0.6 0.491 1.0" /> row major-->
+      <parameter name="Luma" value="0.077 0.125 0.382 0.453" />
+    </command>
+    <command type="clear" color="fog" depth="1.0" stencil="0" />
+    <command type="scenepass" pass="edgebase" vertexlights="true" metadata="base" />
+
+    <command type="quad" vs="resample_edge_quad" ps="resample_edge_quad" output="edge">
+      <texture unit="environment" name="viewport" />
+    </command>
+
+    <command type="quad" pass="dithered" vs="dither_process" ps="dither_process">
+      <texture unit="diffuse" name="dither" />
+      <texture unit="normal" name="edge" />
+    </command>
+</renderpath>

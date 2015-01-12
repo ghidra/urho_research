@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 from PIL import Image, ImageFilter
 #from output import *
 
@@ -92,7 +93,7 @@ def main(kwargs):
   distinct_colors = get_distinct_colors(colors,threshold,min_brightness,max_brightness)
   #ensure there are 16
   count = 0
-  nc = 18 #number of colors
+  nc = 5 #number of colors
   while len(distinct_colors)<nc:
     count+=1
     distinct_colors.extend(get_distinct_colors(colors,threshold-count,min_brightness,max_brightness))
@@ -106,14 +107,14 @@ def main(kwargs):
   darkest_i = get_extremes(0,distinct_colors)
   darkest = distinct_colors[darkest_i]
   del distinct_colors[darkest_i]
-  lightest_i = get_extremes(255,distinct_colors)
+  '''lightest_i = get_extremes(255,distinct_colors)
   lightest = distinct_colors[lightest_i]
-  del distinct_colors[lightest_i]
-
+  del distinct_colors[lightest_i]'''
   #display
   if display:
     margin = 16
     im = Image.new("RGB", (512+(margin*2), 512+(margin*2)), darkest)
+    #im = Image.new("RGB", (512+(margin*2), 512+(margin*2)), 0x000000)
     sq = 128
     count = 0
     for c in distinct_colors:
@@ -121,11 +122,18 @@ def main(kwargs):
       y = ((count/4)*sq)+margin
       im.paste(c,(x,y,x+sq,y+sq))
       count+=1
-    im.paste(lightest,(margin*2,margin*2,margin*4,margin*4))
+    #im.paste(lightest,(margin*2,margin*2,margin*4,margin*4))
     im.show()
 
   #output
   #print out.output(distinct_colors,lightest,darkest)
+  s=""
+  for c in distinct_colors:
+    luma = math.ceil( (math.sqrt(math.pow(c[0]*0.299,2)+math.pow(c[1]*0.587,2)+math.pow(c[2]*0.114,2))/255.0)*1000 )/1000.0
+    nc = (math.ceil((c[0]/255.0)*1000)/1000.0, math.ceil((c[1]/255.0)*1000)/1000.0, math.ceil((c[2]/255.0)*1000)/1000.0)
+    s+=str(nc)+":"+str(luma)+"\n"
+
+  print s
 
 if __name__ == "__main__":
   main(sys.argv)
