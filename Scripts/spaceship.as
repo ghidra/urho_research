@@ -1,9 +1,9 @@
 #include "Scripts/Utilities/Sample.as"
 
-Scene@ scene_;
-Node@ cameraNode;
-float yaw = 0.0f;
-float pitch = 0.0f;
+//Scene@ scene_;
+//Node@ cameraNode;
+//float yaw = 0.0f;
+//float pitch = 0.0f;
 
 void Start(){
   SampleStart();
@@ -78,7 +78,7 @@ void CreateScene(){
   //ssn.rotation = Quaternion(0.0f, Random(360.0f), 0.0f);
   //ssn.SetScale(0.5f + Random(2.0f));
   StaticModel@ sso = ssn.CreateComponent("StaticModel");
-  sso.model = cache.GetResource("Model", "Models/research/spaceship_02.mdl");
+  sso.model = cache.GetResource("Model", "Models/research/spaceship_02_shiponly.mdl");
   //Material@ smat = cache.GetResource("Material", "Materials/research/spaceship.xml");
   Material@ smat = cache.GetResource("Material", "Materials/research/edge.xml");
   Material@ srmat = smat.Clone();
