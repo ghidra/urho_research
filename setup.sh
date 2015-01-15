@@ -34,7 +34,7 @@ if [ -d $URHOPATH ];then
         "Scripts")make_alias $FOLDER $SCRIPTPATH"/"$FOLDER $URHODATAPATH$FOLDER"/research" ;;
         "RenderPaths") make_alias $FOLDER $SCRIPTPATH"/"$FOLDER $URHOCOREDATAPATH$FOLDER"/research" ;;
         "Techniques") make_alias $FOLDER $SCRIPTPATH"/"$FOLDER $URHOCOREDATAPATH$FOLDER"/research" ;;
-        "Shaders") make_alias $FOLDER $SCRIPTPATH"/"$FOLDER $URHODATAPATH$FOLDER"/research" ;;
+        "Shaders") make_alias $FOLDER $SCRIPTPATH"/"$FOLDER $URHODATAPATH$FOLDER ;;
         "Materials") make_alias $FOLDER $SCRIPTPATH"/"$FOLDER $URHODATAPATH$FOLDER"/research" ;;
         "Models") make_alias $FOLDER $SCRIPTPATH"/"$FOLDER $URHODATAPATH$FOLDER"/research" ;;
         *) echo "no commands for:" $FOLDER ;;
