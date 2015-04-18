@@ -20,7 +20,7 @@ void CreateScene(){
     StaticModel@ bgobj = bgnode.CreateComponent("StaticModel");
     bgobj.model = cache.GetResource("Model", "Models/Plane.mdl");
     //bobj.material = cache.GetResource("Material","Materials/Stone.xml");
-    Material@ bmata = cache.GetResource("Material", "Materials/research/edge.xml");
+    Material@ bmata = cache.GetResource("Material", "Materials/edge.xml");
     Material@ rmata = bmata.Clone();
     Color myCola = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
     rmata.shaderParameters["ObjectColor"]=Variant(myCola);//single quotes didnt work
@@ -52,7 +52,7 @@ void CreateScene(){
         //boxObject.material = cache.GetResource("Material", "Materials/Stone.xml");
 
 
-        Material@ bmat = cache.GetResource("Material", "Materials/research/edge.xml");
+        Material@ bmat = cache.GetResource("Material", "Materials/edge.xml");
         Material@ rmat = bmat.Clone();
 
         Color myCol = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
@@ -89,7 +89,7 @@ void SetupViewport(){
     // at minimum. Additionally we could configure the viewport screen size and the rendering path (eg. forward / deferred) to
     // use, but now we just use full screen and default render path configured in the engine command line options
     Viewport@ viewport = Viewport(scene_, cameraNode.GetComponent("Camera"));
-    XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Edge.xml");
+    XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Edge.xml");
     viewport.SetRenderPath(xml);
     renderer.viewports[0] = viewport;
 }

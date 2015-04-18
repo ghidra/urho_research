@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+if [ $# -eq 0 ]; then echo "what script should i run?"; else /home/jimmy/projects/urho/Urho/bin/Urho3DPlayer /Scripts/$1.as -pp /home/jimmy/projects/urho/Urho/bin -p "CoreData;Data;Research"; fi

@@ -1,5 +1,5 @@
 <material>
-  <technique name="Techniques/research/basic.xml" /><!--put this back to dithered.xml for per object dither-->
+  <technique name="Techniques/basic.xml" /><!--put this back to dithered.xml for per object dither-->
   <texture unit="diffuse" name="Textures/StoneDiffuse.dds" />
   <texture unit="normal" name="Textures/StoneNormal.dds" />
   <parameter name="MatSpecColor" value="0.3 0.3 0.3 16" />

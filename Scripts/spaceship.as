@@ -78,9 +78,9 @@ void CreateScene(){
   //ssn.rotation = Quaternion(0.0f, Random(360.0f), 0.0f);
   //ssn.SetScale(0.5f + Random(2.0f));
   StaticModel@ sso = ssn.CreateComponent("StaticModel");
-  sso.model = cache.GetResource("Model", "Models/research/spaceship_02_shiponly.mdl");
+  sso.model = cache.GetResource("Model", "Models/spaceship_02_shiponly.mdl");
   //Material@ smat = cache.GetResource("Material", "Materials/research/spaceship.xml");
-  Material@ smat = cache.GetResource("Material", "Materials/research/edge.xml");
+  Material@ smat = cache.GetResource("Material", "Materials/edge.xml");
   Material@ srmat = smat.Clone();
   Color myCola = Color(Random(1.0f),Random(1.0f),Random(1.0f),1.0f);
   srmat.shaderParameters["ObjectColor"]=Variant(myCola);//single quotes didnt work
@@ -117,7 +117,7 @@ void SetupViewport()
   // use, but now we just use full screen and default render path configured in the engine command line options
   Viewport@ viewport = Viewport(scene_, cameraNode.GetComponent("Camera"));
   //XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Dithered_quad.xml");
-  XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Edge.xml");
+  XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Edge.xml");
   viewport.SetRenderPath(xml);
   renderer.viewports[0] = viewport;
 }

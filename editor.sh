@@ -1,0 +1,1 @@
+/home/jimmy/projects/urho/Urho/bin/Urho3DPlayer /Scripts/Editor.as -pp /home/jimmy/projects/urho/Urho/bin -p "CoreData;Data;Research" -w -s -renderpath RenderPaths/ForwardPixelQuad.xml
