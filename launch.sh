@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-if [ $# -eq 0 ]; then echo "what script should i run?"; else /home/jimmy/projects/urho/Urho/bin/Urho3DPlayer /Scripts/$1.as -pp /home/jimmy/projects/urho/Urho/bin -p "CoreData;Data;Research"; fi
+export LD_LIBRARY_PATH=/mill3d/server/apps/GCC/gcc-4.8.1/lib64
+if [ $# -eq 0 ]; then echo "what script should i run?"; else /mill3d/work/jimmyg/urho/Urho/bin/Urho3DPlayer /Scripts/$1.as -pp /mill3d/work/jimmyg/urho/Urho/bin -p "CoreData;Data;Research"; fi
