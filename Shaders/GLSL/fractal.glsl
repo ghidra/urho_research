@@ -4,8 +4,9 @@
 #include "ScreenPos.glsl"
 
 varying vec4 vScreenPos;
-
-//#ifdef COMPILEPS 
+//varying vec2 vScreenDim;
+//http://hirnsohle.de/test/fractalLab/
+#ifdef COMPILEPS 
 
 #define HALFPI 1.570796
 #define MIN_EPSILON 6e-7
@@ -58,8 +59,8 @@ uniform float cFogFalloff;           // {"label":"Fog falloff",  "min":0,    "ma
 uniform float cSpecularity;          // {"label":"Specularity",  "min":0,    "max":3,    "step":0.01,    "default":0.8,  "group":"Shading", "group_label":"Shininess"}
 uniform float cSpecularExponent;     // {"label":"Specular exponent", "min":0, "max":50, "step":0.1,     "default":4,    "group":"Shading"}
 
-uniform vec2  cSize;                 // {"default":[400, 300]}
-uniform vec2  cOutputSize;           // {"default":[800, 600]}
+//uniform vec2  cSize;                 // {"default":[400, 300]}
+//uniform vec2  cOutputSize;           // {"default":[800, 600]}
 uniform float cAoIntensity;          // {"label":"AO intensity",     "min":0, "max":1, "step":0.01, "default":0.15,  "group":"Shading", "group_label":"Ambient occlusion"}
 uniform float cAoSpread;             // {"label":"AO spread",    "min":0, "max":20, "step":0.01, "default":9,  "group":"Shading"}
 
@@ -69,10 +70,19 @@ uniform mat3  cFractalRotation2;     // {"label":["Rotate x", "Rotate y", "Rotat
 uniform bool  cDepthMap;             // {"label":"Depth map", "default": false, "value":1, "group":"Shading"}
 
 
-float aspectRatio = cOutputSize.x / cOutputSize.y;
-float fovfactor = 1.0 / sqrt(1.0 + cCameraFocalLength * cCameraFocalLength);
-float pixelScale = 1.0 / min(cOutputSize.x, cOutputSize.y);
-float epsfactor = 2.0 * fovfactor * pixelScale * cSurfaceDetail;
+//float aspectRatio = cOutputSize.x / cOutputSize.y;
+//float fovfactor;//1.0 / sqrt(1.0 + cCameraFocalLength * cCameraFocalLength);
+//float pixelScale = 1.0 / min(cOutputSize.x, cOutputSize.y);
+//float epsfactor = 2.0 * fovfactor * pixelScale * cSurfaceDetail;
+
+float aspectRatio;//1920.0/1080.0;
+float fovfactor;
+float pixelScale;//1.0/1080.0;
+float epsfactor;//2.0 * fovfactor * pixelScale * cSurfaceDetail;
+
+vec2 size;
+vec2 outputSize;
+
 vec3  w = vec3(0, 0, 1);
 vec3  v = vec3(0, 1, 0);
 vec3  u = vec3(1, 0, 0);
@@ -135,10 +145,11 @@ vec3 MengerSponge(vec3 w)
 
 vec3 rayDirection(vec2 pixel)
 {
-    vec2 p = (0.5 * cSize - pixel) / vec2(cSize.x, -cSize.y);
+    vec2 p = (0.5 * size - pixel) / vec2(size.x, -size.y);
     p.x *= aspectRatio;
     vec3 d = (p.x * u + p.y * v - cCameraFocalLength * w);
     
+    //return normalize(d);
     return normalize(cameraRotation * d);
 }
 
@@ -243,7 +254,8 @@ vec4 render(vec2 pixel)
 {
     vec3  ray_direction = rayDirection(pixel);
     float ray_length = minRange;
-    vec3  ray = cCameraPosition + ray_length * ray_direction;
+    vec3  ray = cCameraPosPS + ray_length * ray_direction;
+    //vec3  ray = cCameraPosition + ray_length * ray_direction;
     vec4  bg_color = vec4(clamp(mix(cBackground2Color, cBackground1Color, (sin(ray_direction.y * HALFPI) + 1.0) * 0.5), 0.0, 1.0), 1.0);
     vec4  color = bg_color;
     
@@ -256,8 +268,10 @@ vec4 render(vec2 pixel)
     float tmax = 10000.0;
     
     if (intersectBoundingSphere(ray, ray_direction, tmin, tmax)) {
+        //color = vec4(1.0,0.0,0.0,1.0);
         ray_length = tmin;
-        ray = cCameraPosition + ray_length * ray_direction;
+        //ray = cCameraPosition + ray_length * ray_direction;
+        ray = cCameraPosPS + ray_length * ray_direction;
         
         for (int i = 0; i < stepLimit; i++) {
             steps = i;
@@ -273,7 +287,8 @@ vec4 render(vec2 pixel)
             
             hit = false;
             ray_length += dist.x;
-            ray = cCameraPosition + ray_length * ray_direction;
+            //ray = cCameraPosition + ray_length * ray_direction;
+            ray = cCameraPosPS + ray_length * ray_direction;
             eps = ray_length * epsfactor;
 
             if (dist.x < eps || ray_length < tmin) {
@@ -317,11 +332,13 @@ vec4 render(vec2 pixel)
     // }
     
     return color;
+    //return vec4(vec3(dot(ray,ray_direction)),1.0);
+    //return vec4(ray_direction,1.0);
 }
 
 //----------------------------------//
 
-//#endif
+#endif
 
 void VS(){
 	mat4 modelMatrix = iModelMatrix;
@@ -330,21 +347,32 @@ void VS(){
     //vScreenPos = GetScreenPosPreDiv(gl_Position);
 
     vScreenPos = GetScreenPos(gl_Position);
+    //vScreenDim = vec2(gl_Position.x,gl_Position.y);
 }
 
 void PS(){
+    outputSize = 1.0/cGBufferInvSize;
+    size = outputSize;
+
+    aspectRatio = outputSize.x / outputSize.y;
+    fovfactor = 1.0 / sqrt(1.0 + cCameraFocalLength * cCameraFocalLength);
+    pixelScale = 1.0 / min(outputSize.x, outputSize.y);
+    epsfactor = 2.0 * fovfactor * pixelScale * cSurfaceDetail;
+
+    vec2 uv = vScreenPos.xy / vScreenPos.w;
+    vec2 uv_large = uv*outputSize.xy;
 	//gl_FragColor = vec4(vScreenPos.xy / vScreenPos.w,0,1);
 
 	vec4 color = vec4(0.0);
     float n = 0.0;
     cameraRotation = rotationMatrixVector(v, 180.0 - cCameraYaw) * rotationMatrixVector(u, -cCameraPitch) * rotationMatrixVector(w, cCameraRoll);
 
-    color = render(vScreenPos.xy / vScreenPos.w);
+    //color = render(vScreenPos.xy / vScreenPos.w);
+    color = render(uv_large);
 
     if (color.a < 0.00392) discard; // Less than 1/255
     
-    gl_FragColor = color;
-    //gl_FragColor = vec4(pow(color.rgb, vec3(1.0 / cGamma)), color.a);
-    //gl_FragColor = vec4(cOffset, 1.0);
+    //gl_FragColor = color;
+    gl_FragColor = vec4(pow(color.rgb, vec3(1.0 / cGamma)), color.a);
 
 }

@@ -1,56 +1,57 @@
 <renderpath>
+      <command type="clear" color="fog" depth="1.0" stencil="0" />
+      <command type="scenepass" pass="base" vertexlights="true" metadata="base" />
+      <command type="quad" pass="fractal" vs="fractal" ps="fractal">
+            <!--<texture unit="diffuse" name="dither" />
+            <texture unit="normal" name="edge" />-->
+            <!--<parameter name="myoffset" value="0.71 0.66 0.54" />-->
 
-    <command type="quad" pass="fractal" vs="fractal" ps="fractal">
-      <!--<texture unit="diffuse" name="dither" />
-      <texture unit="normal" name="edge" />-->
-      <!--<parameter name="myoffset" value="0.71 0.66 0.54" />-->
+            <parameter name="Scale" value="2.0" />
+            <parameter name="Power" value="8.0" />
+            <parameter name="SurfaceDetail" value="2.0" />
+            <parameter name="SurfaceSmoothness" value="0.8" />
+            <parameter name="BoundingRadius" value="5.0" />
+            <parameter name="Offset" value="0.71 0.66 0.54" />
+            <parameter name="Shift" value="0.0 0.0 0.0" />
 
-      <parameter name="Scale" value="2.0" />
-      <parameter name="Power" value="8.0" />
-      <parameter name="SurfaceDetail" value="2.0" />
-      <parameter name="SurfaceSmoothness" value="0.8" />
-      <parameter name="BoudingRadius" value="5.0" />
-      <parameter name="Offset" value="0.71 0.66 0.54" />
-      <parameter name="Shift" value="0.0 0.0 0.0" />
+            <parameter name="CameraRoll" value="0.0" />
+            <parameter name="CameraPitch" value="0.0" />
+            <parameter name="CameraYaw" value="0.0" />
+            <parameter name="CameraFocalLength" value="0.9" />
+            <parameter name="CameraPosition" value="0.0 0.0 -2.5" />
 
-      <parameter name="CameraRoll" value="0.0" />
-      <parameter name="CameraPitch" value="0.0" />
-      <parameter name="CameraYaw" value="0.0" />
-      <parameter name="CameraFocalLength" value="0.9" />
-      <parameter name="CameraPosition" value="0.0 0.0 -2.5" />
+            <parameter name="ColorIterations" value="4" />
+            <parameter name="Color1" value="1.0 1.0 1.0" />
+            <parameter name="Color1Intensity" value="0.45" />
+            <parameter name="Color2" value="0.1 0.1 0.8" />
+            <parameter name="Color2Intensity" value="0.3" />
+            <parameter name="Color3" value="0.8 0.5 0.1" />
+            <parameter name="Color3Intensity" value="0.0" />
+            <parameter name="Transparent" value="false" />
+            <parameter name="Gamma" value="1.0" />
+            
+            <parameter name="Light" value="-16.0 100.0 -60.0" />
+            <parameter name="MyAmbientColor" value="0.5 0.3" />
+            <parameter name="Background1Color" value="0.2 0.2 0.8" />
+            <parameter name="Background2Color" value="0.0 0.0 0.0" />
+            <parameter name="InnerGlowColor" value="0.2 0.2 0.8" />
+            <parameter name="InnerGlowIntensity" value="0.0" />
+            <parameter name="OuterGlowColor" value="1.0 1.0 1.0" />
+            <parameter name="OuterGlowIntensity" value="0.0" />
+            <parameter name="Fog" value="0.0" />
+            <parameter name="FogFalloff" value="0.0" />
+            <parameter name="Specularity" value="0.8" />
+            <parameter name="SpecularExponent" value="4.0" />
 
-      <parameter name="ColorIterations" value="4" />
-      <parameter name="Color1" value="1.0 1.0 1.0" />
-      <parameter name="Color1Intensity" value="0.45" />
-      <parameter name="Color2" value="0.1 0.1 0.8" />
-      <parameter name="Color2Intensity" value="0.3" />
-      <parameter name="Color3" value="0.8 0.5 0.1" />
-      <parameter name="Color3Intensity" value="0.0" />
-      <parameter name="Transparent" value="false" />
-      <parameter name="Gamma" value="1.0" />
-      
-      <parameter name="Light" value="-16.0 100.0 -60.0" />
-      <parameter name="MyAmbientColor" value="0.5 0.3" />
-      <parameter name="Background1Color" value="0.2 0.2 0.8" />
-      <parameter name="Background2Color" value="0.0 0.0 0.0" />
-      <parameter name="InnerGlowColor" value="0.2 0.2 0.8" />
-      <parameter name="InnerGlowIntensity" value="0.0" />
-      <parameter name="OuterGlowColor" value="1.0 1.0 1.0" />
-      <parameter name="OuterGlowIntensity" value="0.0" />
-      <parameter name="Fog" value="0.0" />
-      <parameter name="FogFalloff" value="0.0" />
-      <parameter name="Specularity" value="0.8" />
-      <parameter name="SpecularExponent" value="4.0" />
+            <!--<parameter name="Size" value="400.0 300.0" />
+            <parameter name="OutputSize" value="800.0 600.0" />-->
+            <parameter name="AoIntensity" value="0.5" />
+            <parameter name="AoSpread" value="9.0" />
 
-      <parameter name="Size" value="400.0 300.0" />
-      <parameter name="OutputSize" value="800.0 600.0" />
-      <parameter name="AoIntensity" value="0.5" />
-      <parameter name="AoSpread" value="9.0" />
-
-      <parameter name="ObjectRotation" value="1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0" />
-      <parameter name="FractalRotation1" value="1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0" />
-      <parameter name="FractalRotation2" value="1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0" />
-      <parameter name="DepthMap" value="true" />
-    </command>
+            <parameter name="ObjectRotation" value="1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0" />
+            <parameter name="FractalRotation1" value="1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0" />
+            <parameter name="FractalRotation2" value="1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0" />
+            <parameter name="DepthMap" value="true" />
+      </command>
 
 </renderpath>
