@@ -1,5 +1,6 @@
 #include "Scripts/Utilities/Sample.as"
 
+Viewport@ viewport_;
 
 void Start(){
   SampleStart();
@@ -24,7 +25,7 @@ void CreateScene(){
 
   cameraNode = scene_.CreateChild("Camera");
   cameraNode.CreateComponent("Camera");
-  cameraNode.position = Vector3(0.0f, 5.0f, 0.0f);
+  cameraNode.position = Vector3(0.0f, 0.0f, -2.5f);
 }
 
 void CreateInstructions()
@@ -45,11 +46,11 @@ void SetupViewport()
   // Set up a viewport to the Renderer subsystem so that the 3D scene can be seen. We need to define the scene and the camera
   // at minimum. Additionally we could configure the viewport screen size and the rendering path (eg. forward / deferred) to
   // use, but now we just use full screen and default render path configured in the engine command line options
-  Viewport@ viewport = Viewport(scene_, cameraNode.GetComponent("Camera"));
+  viewport_ = Viewport(scene_, cameraNode.GetComponent("Camera"));
   //XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Dithered_quad.xml");
   XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Fractal.xml");
-  viewport.SetRenderPath(xml);
-  renderer.viewports[0] = viewport;
+  viewport_.SetRenderPath(xml);
+  renderer.viewports[0] = viewport_;
 }
 
 void MoveCamera(float timeStep)
@@ -82,22 +83,30 @@ void MoveCamera(float timeStep)
           cameraNode.Translate(Vector3(-1.0f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
           if (input.keyDown['D'])
             cameraNode.Translate(Vector3(1.0f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
-          }
+}
 
-          void SubscribeToEvents()
-        {
-          // Subscribe HandleUpdate() function for processing update events
-          SubscribeToEvent("Update", "HandleUpdate");
-        }
+void SubscribeToEvents(){
+  // Subscribe HandleUpdate() function for processing update events
+  SubscribeToEvent("Update", "HandleUpdate");
+}
 
-        void HandleUpdate(StringHash eventType, VariantMap& eventData)
-      {
-        // Take the frame time step, which is stored as a float
-        float timeStep = eventData["TimeStep"].GetFloat();
+void HandleUpdate(StringHash eventType, VariantMap& eventData){
+  // Take the frame time step, which is stored as a float
+  float timeStep = eventData["TimeStep"].GetFloat();
 
-        // Move the camera, scale movement with time step
-        MoveCamera(timeStep);
-      }
+  // Move the camera, scale movement with time step
+  MoveCamera(timeStep);
 
-      // Create XML patch instructions for screen joystick layout specific to this sample app
-      String patchInstructions = "";
+  //set the shader parameters in the renderpath to the camera values it needs
+  Quaternion rot = cameraNode.rotation;
+  const float pitch = rot.pitch+0.0;
+  float yaw = rot.yaw;
+  float roll = rot.roll;
+  //Print(viewport_.renderPath.commands[2].shaderParameters[8]);
+  //renderer.viewports[0].renderPath.commands[2].shaderParameters["CameraPitch"]=Variant(pitch);
+  //viewport_.renderPath.commands[2].shaderParameters["CameraYaw"]=Variant(yaw);
+  //viewport_.renderPath.commands[2].shaderParameters["CameraRoll"]=Variant(roll);
+}
+
+// Create XML patch instructions for screen joystick layout specific to this sample app
+String patchInstructions = "";

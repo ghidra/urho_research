@@ -4,10 +4,14 @@
 #include "ScreenPos.glsl"
 
 varying vec4 vScreenPos;
+varying mat3 vCamRot;
 //varying vec2 vScreenDim;
 //http://hirnsohle.de/test/fractalLab/
+
+
 #ifdef COMPILEPS 
 
+#define PI 3.14
 #define HALFPI 1.570796
 #define MIN_EPSILON 6e-7
 #define MIN_NORM 1.5e-7
@@ -98,6 +102,19 @@ mat3 rotationMatrixVector(vec3 v, float angle)
               (1.0 - c) * v.x * v.y + s * v.z, c + (1.0 - c) * v.y * v.y, (1.0 - c) * v.y * v.z - s * v.x,
               (1.0 - c) * v.x * v.z - s * v.y, (1.0 - c) * v.y * v.z + s * v.x, c + (1.0 - c) * v.z * v.z);
 }
+vec3 GetEuler(mat3 R){
+
+    float x1 = -asin(R[0][2]);
+    float x2 = PI - x1;
+
+    float y1 = atan(R[1][2] / cos(x1), R[2][2] / cos(x1));
+    float y2 = atan(R[1][2] / cos(x2), R[2][2] / cos(x2));
+
+    float z1 = atan(R[0][1] / cos(x1), R[0][0] / cos(x1));
+    float z2 = atan(R[0][1] / cos(x2), R[0][0] / cos(x2));
+    return vec3(x1,y1,z1);
+}
+
 //----------------------------------------//
 //#ifdef dEMengerSponge
 // Pre-calculations
@@ -347,6 +364,9 @@ void VS(){
     //vScreenPos = GetScreenPosPreDiv(gl_Position);
 
     vScreenPos = GetScreenPos(gl_Position);
+
+    //camera data
+    vCamRot =  cCameraRot;
     //vScreenDim = vec2(gl_Position.x,gl_Position.y);
 }
 
@@ -365,12 +385,18 @@ void PS(){
 
 	vec4 color = vec4(0.0);
     float n = 0.0;
+    mat3 yrot = mat3(-0.59846,0.0,0.801153,0.0,1.0,0.0,-0.801153,0.0,-0.59846);
+    mat3 yrotn = mat3(-0.59846,0.0,-0.801153,0.0,1.0,0.0,0.801153,0.0,-0.59846);
+    mat3 xrot = mat3(1.0,0.0,0.0,0.0,-0.59846,-0.801153,0.0,0.801153,-0.59846);
+    mat3 xrotn = mat3(1.0,0.0,0.0,0.0,-0.59846,0.801153,0.0,-0.801153,-0.59846);
+    //cameraRotation = mat3(1.0,0.0,0.0,0.0,-0.59846,-0.801153,0.0,0.801153,-0.59846)*matrixCompMult(inverse(vCamRot),mat3(1.0,-1.0,1.0,-1.0,1.0,1.0,1.0,1.0,1.0));
+    //cameraRotation = vCamRot;
     cameraRotation = rotationMatrixVector(v, 180.0 - cCameraYaw) * rotationMatrixVector(u, -cCameraPitch) * rotationMatrixVector(w, cCameraRoll);
 
     //color = render(vScreenPos.xy / vScreenPos.w);
     color = render(uv_large);
 
-    if (color.a < 0.00392) discard; // Less than 1/255
+    //if (color.a < 0.00392) discard; // Less than 1/255
     
     //gl_FragColor = color;
     gl_FragColor = vec4(pow(color.rgb, vec3(1.0 / cGamma)), color.a);
