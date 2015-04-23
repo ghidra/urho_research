@@ -15,7 +15,7 @@ varying mat3 vCamRot;
 #define HALFPI 1.570796
 #define MIN_EPSILON 6e-7
 #define MIN_NORM 1.5e-7
-#define dE MengerSponge             // {"label":"Fractal type", "control":"select", "options":["MengerSponge", "SphereSponge", "Mandelbulb", "Mandelbox", "OctahedralIFS", "DodecahedronIFS"]}
+#define dE SphereSponge             // {"label":"Fractal type", "control":"select", "options":["MengerSponge", "SphereSponge", "Mandelbulb", "Mandelbox", "OctahedralIFS", "DodecahedronIFS"]}
 
 #define maxIterations 8             // {"label":"Iterations", "min":1, "max":30, "step":1, "group_label":"Fractal parameters"}
 #define stepLimit 60                // {"label":"Max steps", "min":10, "max":300, "step":1}
@@ -116,6 +116,42 @@ vec3 GetEuler(mat3 R){
 }
 
 //----------------------------------------//
+
+//uniform float sphereHoles;          // {"label":"Holes",        "min":3,    "max":6,    "step":0.01,    "default":4,    "group":"Fractal", "group_label":"Additional parameters"}
+//uniform float sphereScale;          // {"label":"Sphere scale", "min":0.01, "max":3,    "step":0.01,    "default":2.05,    "group":"Fractal"}
+float sphereHoles = 4.0;
+float sphereScale = 1.0;
+
+// Adapted from Buddhis algorithm
+// http://www.fractalforums.com/3d-fractal-generation/revenge-of-the-half-eaten-menger-sponge/msg21700/
+vec3 SphereSponge(vec3 w)
+{
+    w *= cObjectRotation;
+    float k = cScale;
+    float d = -10000.0;
+    float d1, r, md = 100000.0, cd = 0.0;
+    
+    for (int i = 0; i < int(maxIterations); i++) {
+        vec3 zz = mod(w * k, sphereHoles) - vec3(0.5 * sphereHoles) + cOffset;
+        r = length(zz);
+        
+        // distance to the edge of the sphere (positive inside)
+        d1 = (sphereScale - r) / k;
+        k *= cScale;
+        
+        // intersection
+        d = max(d, d1);
+        
+        if (i < cColorIterations) {
+            md = min(md, d);
+            cd = r;
+        }
+    }
+    
+    return vec3(d, cd, md);
+}
+
+
 //#ifdef dEMengerSponge
 // Pre-calculations
 vec3 halfSpongeScale = vec3(0.5) * cScale;
@@ -157,6 +193,64 @@ vec3 MengerSponge(vec3 w)
     return vec3(d * 2.0 / cScale, md, dot(cd, cd));
 }
 //#endif
+
+//uniform float sphereScale;          // {"label":"Sphere scale", "min":0.01, "max":3,    "step":0.01,    "default":1,    "group":"Fractal", "group_label":"Additional parameters"}
+//uniform float boxScale;             // {"label":"Box scale",    "min":0.01, "max":3,    "step":0.001,   "default":0.5,  "group":"Fractal"}
+//uniform float boxFold;              // {"label":"Box fold",     "min":0.01, "max":3,    "step":0.001,   "default":1,    "group":"Fractal"}
+//uniform float fudgeFactor;          // {"label":"Box size fudge factor",     "min":0, "max":100,    "step":0.001,   "default":0,    "group":"Fractal"}
+
+//float sphereScale = 1.0;          // {"label":"Sphere scale", "min":0.01, "max":3,    "step":0.01,    "default":1,    "group":"Fractal", "group_label":"Additional parameters"}
+float boxScale = 0.5;             // {"label":"Box scale",    "min":0.01, "max":3,    "step":0.001,   "default":0.5,  "group":"Fractal"}
+float boxFold = 1.0;              // {"label":"Box fold",     "min":0.01, "max":3,    "step":0.001,   "default":1,    "group":"Fractal"}
+float fudgeFactor = 0.0;
+// Pre-calculations
+float mR2 = boxScale * boxScale;    // Min radius
+float fR2 = sphereScale * mR2;      // Fixed radius
+vec2  scaleFactor = vec2(cScale, abs(cScale)) / mR2;
+
+// Details about the Mandelbox DE algorithm:
+// http://www.fractalforums.com/3d-fractal-generation/a-mandelbox-distance-estimate-formula/
+vec3 Mandelbox(vec3 w)
+{
+    w *= cObjectRotation;
+    float md = 1000.0;
+    vec3 c = w;
+    
+    // distance estimate
+    vec4 p = vec4(w.xyz, 1.0),
+        p0 = vec4(w.xyz, 1.0);  // p.w is knighty's DEfactor
+    
+    for (int i = 0; i < int(maxIterations); i++) {
+        // box fold:
+        // if (p > 1.0) {
+        //   p = 2.0 - p;
+        // } else if (p < -1.0) {
+        //   p = -2.0 - p;
+        // }
+        p.xyz = clamp(p.xyz, -boxFold, boxFold) * 2.0 * boxFold - p.xyz;  // box fold
+        p.xyz *= cFractalRotation1;
+        
+        // sphere fold:
+        // if (d < minRad2) {
+        //   p /= minRad2;
+        // } else if (d < 1.0) {
+        //   p /= d;
+        // }
+        float d = dot(p.xyz, p.xyz);
+        p.xyzw *= clamp(max(fR2 / d, mR2), 0.0, 1.0);  // sphere fold
+        
+        p.xyzw = p * scaleFactor.xxxy + p0 + vec4(cOffset, 0.0);
+        p.xyz *= cFractalRotation2;
+
+        if (i < cColorIterations) {
+            md = min(md, d);
+            c = p.xyz;
+        }
+    }
+    
+    // Return distance estimate, min distance, fractional iteration count
+    return vec3((length(p.xyz) - fudgeFactor) / p.w, md, 0.33 * log(dot(c, c)) + 1.0);
+}
 
 //----------------------------------------//
 
@@ -385,13 +479,8 @@ void PS(){
 
 	vec4 color = vec4(0.0);
     float n = 0.0;
-    mat3 yrot = mat3(-0.59846,0.0,0.801153,0.0,1.0,0.0,-0.801153,0.0,-0.59846);
-    mat3 yrotn = mat3(-0.59846,0.0,-0.801153,0.0,1.0,0.0,0.801153,0.0,-0.59846);
-    mat3 xrot = mat3(1.0,0.0,0.0,0.0,-0.59846,-0.801153,0.0,0.801153,-0.59846);
-    mat3 xrotn = mat3(1.0,0.0,0.0,0.0,-0.59846,0.801153,0.0,-0.801153,-0.59846);
-    //cameraRotation = mat3(1.0,0.0,0.0,0.0,-0.59846,-0.801153,0.0,0.801153,-0.59846)*matrixCompMult(inverse(vCamRot),mat3(1.0,-1.0,1.0,-1.0,1.0,1.0,1.0,1.0,1.0));
-    //cameraRotation = vCamRot;
-    cameraRotation = rotationMatrixVector(v, 180.0 - cCameraYaw) * rotationMatrixVector(u, -cCameraPitch) * rotationMatrixVector(w, cCameraRoll);
+
+    cameraRotation = rotationMatrixVector(v, 180.0 - cCameraYaw) * rotationMatrixVector(u, cCameraPitch) * rotationMatrixVector(w, cCameraRoll);
 
     //color = render(vScreenPos.xy / vScreenPos.w);
     color = render(uv_large);
