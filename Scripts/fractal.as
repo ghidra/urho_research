@@ -11,25 +11,93 @@ void Start(){
 
   // Set the loaded style as default style
   ui.root.defaultStyle = style;
-  InitWindow();
+  
+  InitWindow();//window must be the gui
   InitControls();
 
   CreateScene();
-  CreateInstructions();
+  //CreateInstructions();
   SetupViewport();
   SubscribeToEvents();
 }
 
 void InitControls(){
-  Slider@ slider = Slider();
-  slider.name = "Scale";
+  /*
+  <parameter name="ColorIterations" value="4" />
+  <parameter name="Color1" value="1.0 1.0 1.0" />
+  <parameter name="Color1Intensity" value="0.45" />
+  <parameter name="Color2" value="0.1 0.1 0.8" />
+  <parameter name="Color2Intensity" value="0.3" />
+  <parameter name="Color3" value="0.8 0.5 0.1" />
+  <parameter name="Color3Intensity" value="0.0" />
+  <parameter name="Transparent" value="false" />
+  <parameter name="Gamma" value="1.0" />
+  
+  <parameter name="Light" value="-16.0 100.0 -60.0" />
+  <parameter name="MyAmbientColor" value="0.5 0.3" />
+  <parameter name="Background1Color" value="0.2 0.2 0.8" />
+  <parameter name="Background2Color" value="0.0 0.0 0.0" />
+  <parameter name="InnerGlowColor" value="0.2 0.2 0.8" />
+  <parameter name="InnerGlowIntensity" value="0.0" />
+  <parameter name="OuterGlowColor" value="1.0 1.0 1.0" />
+  <parameter name="OuterGlowIntensity" value="0.0" />
+  <parameter name="Fog" value="0.0" />
+  <parameter name="FogFalloff" value="0.0" />
+  <parameter name="Specularity" value="0.8" />
+  <parameter name="SpecularExponent" value="4.0" />
+
+  <parameter name="AoIntensity" value="0.5" />
+  <parameter name="AoSpread" value="9.0" />*/
+
+  Slider@ s_power = Slider();
+  s_power.name = "Power";
+
+  Slider@ s_scale = Slider();
+  s_scale.name = "Scale";
+
+  Slider@ s_surfacedetail = Slider();
+  s_surfacedetail.name = "SurfaceDetail";
+
+  Slider@ s_surfacesmoothness = Slider();
+  s_surfacesmoothness.name = "SurfaceSmoothness";
+
+  Slider@ s_boundingradius = Slider();
+  s_boundingradius.name = "BoundingRadius";
+
+  Slider@ s_offset = Slider();
+  s_offset.name = "Offset";//this is a vector
+
+  Slider@ s_shift = Slider();
+  s_shift.name = "Shift";
+
+  
+
+  window.AddChild(s_power);
+  window.AddChild(s_scale);
+  window.AddChild(s_surfacedetail);
+  window.AddChild(s_surfacesmoothness);
+  window.AddChild(s_boundingradius);
+  window.AddChild(s_offset);
+  window.AddChild(s_shift);
+
+  s_power.SetStyleAuto();
+  s_scale.SetStyleAuto();
+  s_surfacedetail.SetStyleAuto();
+  s_surfacesmoothness.SetStyleAuto();
+  s_boundingradius.SetStyleAuto();
+  s_offset.SetStyleAuto();
+  s_shift.SetStyleAuto();
 }
 void InitWindow(){
+
+  input.mouseVisible = true;
+
   window = Window();
   ui.root.AddChild(window);
 
   // Set Window size and layout settings
   window.SetMinSize(384, 192);
+  //window.SetMaxSize(1280, 720);
   window.SetLayout(LM_VERTICAL, 6, IntRect(6, 6, 6, 6));
   window.SetAlignment(HA_CENTER, VA_CENTER);
   window.name = "Window";
@@ -60,6 +128,8 @@ void InitWindow(){
   window.SetStyleAuto();
   windowTitle.SetStyleAuto();
   //buttonClose.style = "CloseButton";
+
+  //graphics.ToggleFullscreen();
 
   // Subscribe to buttonClose release (following a 'press') events
   //SubscribeToEvent(buttonClose, "Released", "HandleClosePressed");
@@ -109,19 +179,6 @@ void CreateScene(){
   cameraNode.position = Vector3(0.0f, 0.0f, -2.5f);
 }
 
-void CreateInstructions()
-{
-  // Construct new Text object, set string to display and font to use
-  Text@ instructionText = ui.root.CreateChild("Text");
-  instructionText.text = "Use WASD keys and mouse to move";
-  instructionText.SetFont(cache.GetResource("Font", "Fonts/Anonymous Pro.ttf"), 15);
-
-  // Position the text relative to the screen center
-  instructionText.horizontalAlignment = HA_CENTER;
-  instructionText.verticalAlignment = VA_CENTER;
-  instructionText.SetPosition(0, ui.root.height / 4);
-}
-
 void SetupViewport()
 {
   // Set up a viewport to the Renderer subsystem so that the 3D scene can be seen. We need to define the scene and the camera
@@ -132,6 +189,9 @@ void SetupViewport()
   XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Fractal.xml");
   viewport_.SetRenderPath(xml);
   renderer.viewports[0] = viewport_;
+
+  //graphics.SetMode(1280,720);//make it render a certain size... doesnt work so well on work computer
+  graphics.SetMode(1280,720,false,true,false,false,false,1);
 }
 
 void MoveCamera(float timeStep)
