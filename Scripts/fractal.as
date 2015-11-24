@@ -1,4 +1,5 @@
 #include "Scripts/Utilities/Sample.as"
+#include "gui.as"
 
 Viewport@ viewport_;
 Window@ window;
@@ -48,6 +49,7 @@ void InitControls(){
 
   <parameter name="AoIntensity" value="0.5" />
   <parameter name="AoSpread" value="9.0" />*/
+  UIElement@ myslider = CreateSlider("test");
 
   Slider@ s_power = Slider();
   s_power.name = "Power";
@@ -71,6 +73,7 @@ void InitControls(){
   s_shift.name = "Shift";
 
   
+  window.AddChild(myslider);
 
   window.AddChild(s_power);
   window.AddChild(s_scale);
