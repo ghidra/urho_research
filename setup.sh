@@ -99,7 +99,7 @@ else
     #make or edit the launch script
     LAUNCHSTRING=$'#!/usr/bin/env bash\n'
     LAUNCHSTRING=$LAUNCHSTRING'if [ $# -eq 0 ]; then echo "what script should i run?"; else '
-    LAUNCHSTRING=$LAUNCHSTRING$URHOBUILD$'/bin/Urho3DPlayer /Scripts/$1.as -pp '$URHOBUILD"/bin -p \"CoreData;Data;"$SUBFOLDER"\""
+    LAUNCHSTRING=$LAUNCHSTRING$URHOBUILD'/bin/Urho3DPlayer /Scripts/$1.as -pp '$URHOBUILD"/bin -p \"CoreData;Data;"$SUBFOLDER"\""
     LAUNCH=$LAUNCHSTRING"; fi"
     
     FILE=$SCRIPTPATH/launch.sh
