@@ -1,5 +1,41 @@
 #include "Scripts/Utilities/Sample.as"
-#include "gui.as"
+
+//global fractal parameters
+uint    f_fractal             = 0;
+float   f_scale               = 2.0f;
+float   f_power               = 8.0f;
+float   f_surfacedetail       = 2.0f;
+float   f_surfacesmoothness   = 0.8f;
+float   f_boundingradius      = 5.0f;
+Vector3 f_offset              = Vector3(0.71f,0.66f,0.54f);
+Vector3 f_shift               = Vector3();
+
+uint    f_coloriterations     = 4;
+Vector3 f_color1              = Vector3(1.0f, 1.0f, 1.0f);
+float   f_color1intensity     = 0.45f;
+Vector3 f_color2              = Vector3(0.1f, 0.1f, 0.8f);
+float   f_color2intensity     = 0.3f;
+Vector3 f_color3              = Vector3(0.8f, 0.5f, 0.1f);
+float   f_color3intensity     = 0.0f;
+bool    f_transparent         = false;
+float   f_gamma               = 1.0f;
+
+Vector3 f_light               = Vector3(-16.0f, 100.0f, -60.0f);
+Vector2 f_myambientcolor      = Vector2(0.5f, 0.3f);
+Vector3 f_background1color    = Vector3(0.2f, 0.2f, 0.8f);
+Vector3 f_background2color    = Vector3();
+Vector3 f_innerglowcolor      = Vector3(0.2f, 0.2f, 0.8f);
+float   f_innerglowintensity  = 0.0f;
+Vector3 f_outerglowcolor      = Vector3(1.0f, 1.0f, 1.0f);
+float   f_outerglowintensity  = 0.0f;
+float   f_fog                 = 0.0f;
+float   f_fogfalloff          = 0.0f;
+float   f_specularity         = 0.8f;
+float   f_specularexponent    = 4.0f;
+
+float   f_aointensity         = 0.5f;
+float   f_aospread            = 9.0f;
+//------
 
 Viewport@ viewport_;
 Window@ window;
@@ -22,75 +58,6 @@ void Start(){
   SubscribeToEvents();
 }
 
-void InitControls(){
-  /*
-  <parameter name="ColorIterations" value="4" />
-  <parameter name="Color1" value="1.0 1.0 1.0" />
-  <parameter name="Color1Intensity" value="0.45" />
-  <parameter name="Color2" value="0.1 0.1 0.8" />
-  <parameter name="Color2Intensity" value="0.3" />
-  <parameter name="Color3" value="0.8 0.5 0.1" />
-  <parameter name="Color3Intensity" value="0.0" />
-  <parameter name="Transparent" value="false" />
-  <parameter name="Gamma" value="1.0" />
-  
-  <parameter name="Light" value="-16.0 100.0 -60.0" />
-  <parameter name="MyAmbientColor" value="0.5 0.3" />
-  <parameter name="Background1Color" value="0.2 0.2 0.8" />
-  <parameter name="Background2Color" value="0.0 0.0 0.0" />
-  <parameter name="InnerGlowColor" value="0.2 0.2 0.8" />
-  <parameter name="InnerGlowIntensity" value="0.0" />
-  <parameter name="OuterGlowColor" value="1.0 1.0 1.0" />
-  <parameter name="OuterGlowIntensity" value="0.0" />
-  <parameter name="Fog" value="0.0" />
-  <parameter name="FogFalloff" value="0.0" />
-  <parameter name="Specularity" value="0.8" />
-  <parameter name="SpecularExponent" value="4.0" />
-
-  <parameter name="AoIntensity" value="0.5" />
-  <parameter name="AoSpread" value="9.0" />*/
-  UIElement@ myslider = CreateSlider("test");
-
-  Slider@ s_power = Slider();
-  s_power.name = "Power";
-
-  Slider@ s_scale = Slider();
-  s_scale.name = "Scale";
-
-  Slider@ s_surfacedetail = Slider();
-  s_surfacedetail.name = "SurfaceDetail";
-
-  Slider@ s_surfacesmoothness = Slider();
-  s_surfacesmoothness.name = "SurfaceSmoothness";
-
-  Slider@ s_boundingradius = Slider();
-  s_boundingradius.name = "BoundingRadius";
-
-  Slider@ s_offset = Slider();
-  s_offset.name = "Offset";//this is a vector
-
-  Slider@ s_shift = Slider();
-  s_shift.name = "Shift";
-
-  
-  window.AddChild(myslider);
-
-  window.AddChild(s_power);
-  window.AddChild(s_scale);
-  window.AddChild(s_surfacedetail);
-  window.AddChild(s_surfacesmoothness);
-  window.AddChild(s_boundingradius);
-  window.AddChild(s_offset);
-  window.AddChild(s_shift);
-
-  s_power.SetStyleAuto();
-  s_scale.SetStyleAuto();
-  s_surfacedetail.SetStyleAuto();
-  s_surfacesmoothness.SetStyleAuto();
-  s_boundingradius.SetStyleAuto();
-  s_offset.SetStyleAuto();
-  s_shift.SetStyleAuto();
-}
 void InitWindow(){
 
   input.mouseVisible = true;
@@ -101,7 +68,8 @@ void InitWindow(){
   // Set Window size and layout settings
   window.SetMinSize(384, 192);
   //window.SetMaxSize(1280, 720);
-  window.SetLayout(LM_VERTICAL, 6, IntRect(6, 6, 6, 6));
+  //window.SetLayout(LM_VERTICAL, 6, IntRect(6, 6, 6, 6));
+  window.SetLayout(LM_VERTICAL);
   window.SetAlignment(HA_CENTER, VA_CENTER);
   window.name = "Window";
 
@@ -139,11 +107,147 @@ void InitWindow(){
 
   // Subscribe also to all UI mouse clicks just to see where we have clicked
   SubscribeToEvent("UIMouseClick", "HandleControlClicked");
+
+  ///make the sliders
+  //CreateSlider(window, "", power, 4);
 }
-//void HandleClosePressed(StringHash eventType, VariantMap& eventData)
-//{
-//    engine.Exit();
-//}
+
+void InitControls(){
+
+  //UIElement@ myslider = CreateSlider("test");
+  //CreateSlider(window,"fractal",f_fractal,0,8);
+
+  ScrollView@ details = ScrollView();
+  window.AddChild(details);
+  
+  //details.SetLayout(LM_HORIZONTAL);
+  details.SetMaxSize(384,100);
+  //details.SetAlignment(HA_LEFT,VA_TOP);
+  //details.SetMaxSize(2147483647,100);
+  details.SetStyleAuto();
+  details.SetScrollBarsVisible(false,true);
+  UIElement@ sliders = UIElement();
+  details.AddChild(sliders);
+  sliders.SetLayout(LM_VERTICAL);
+  //sliders.SetMaxSize(2147483647,2147483647);
+  //details.verticalAlignment = VA_TOP;
+  //details.layoutMode = LM_HORIZONTAL;
+
+  CreateSlider(sliders,"scale",f_scale,-10.0f,10.0f);//
+  CreateSlider(sliders,"power",f_power,-20.0f,20.0f);//
+  CreateSlider(sliders,"surface detail",f_surfacedetail,0.1f,2.0f);//0.1,2.0
+  CreateSlider(sliders,"surface smoothness",f_surfacesmoothness,0.01f,1.0f);//0.01,1.0
+  CreateSlider(sliders,"boundingradius",f_boundingradius,0.1f,150.0);//0.1,150
+  CreateSlider(sliders,"offset x",f_offset.x,-3.0f,3.0f);//-3,3
+  CreateSlider(sliders,"offset y",f_offset.y,-3.0f,3.0f);//
+  CreateSlider(sliders,"offset z",f_offset.z,-3.0f,3.0f);//
+  CreateSlider(sliders,"shift x",f_shift.x,-3.0f,3.0f);//-3,3
+  CreateSlider(sliders,"shift y",f_shift.y,-3.0f,3.0f);//
+  CreateSlider(sliders,"shift z",f_shift.z,-3.0f,3.0f);//
+
+  //details.SetStyleAuto();
+  //details.UpdateLayout();
+
+  /*CreateSlider(window,"color iterations",f_coloriterations,0.0f,30.0f);
+  CreateSlider(window,"color 1 r",f_color1.x,0.0f,1.0f);
+  CreateSlider(window,"color 1 g",f_color1.y,0.0f,1.0f);
+  CreateSlider(window,"color 1 b",f_color1.z,0.0f,1.0f);
+  CreateSlider(window,"color 1 intensity",f_color1intensity,0.0f,3.0f);
+  CreateSlider(window,"color 2 r",f_color2.x,0.0f,1.0f);
+  CreateSlider(window,"color 2 g",f_color2.y,0.0f,1.0f);
+  CreateSlider(window,"color 2 b",f_color2.z,0.0f,1.0f);
+  CreateSlider(window,"color 2 intensity",f_color2intensity,0.0f,3.0f);
+  CreateSlider(window,"color 3 r",f_color3.x,0.0f,1.0f);
+  CreateSlider(window,"color 3 g",f_color3.y,0.0f,1.0f);
+  CreateSlider(window,"color 3 b",f_color3.z,0.0f,1.0f);
+  CreateSlider(window,"color 3 intensity",f_color3intensity,0.0f,3.0f);
+  //CreateSlider(window,"color iterations",f_coloriterations,0.0f,30.0f);//0,30
+  CreateSlider(window,"gamma",f_gamma,0.1f,2.0f);*/
+
+  /*Vector3 color1              = Vector3(1.0f, 1.0f, 1.0f);
+  float   color1intensity     = 0.45f;
+  Vector3 color2              = Vector3(0.1f, 0.1f, 0.8f);
+  float   color2intensity     = 0.3f;
+  Vector3 color3              = Vector3(0.8f, 0.5f, 0.1f);
+  float   color3intensity     = 0.0f;
+  bool    transparent         = false;
+  float   gamma               = 1.0f;
+
+  Vector3 light               = Vector3(-16.0f, 100.0f, -60.0f);
+  Vector2 myambientcolor      = Vector2(0.5f, 0.3f);
+  Vector3 background1color    = Vector3(0.2f, 0.2f, 0.8f);
+  Vector3 background2color    = Vector3();
+  Vector3 innerglowcolor      = Vector3(0.2f, 0.2f, 0.8f);
+  float   innerglowintensity  = 0.0f;
+  Vector3 outerglowcolor      = Vector3(1.0f, 1.0f, 1.0f);
+  float   outerglowintensity  = 0.0f;
+  float   fog                 = 0.0f;
+  float   fogfalloff          = 0.0f;
+  float   specularity         = 0.8f;
+  float   specularexponent    = 4.0f;
+
+  float aointensity           = 0.5f;
+  float aospread              = 9.0f;*/
+
+}
+
+void CreateSlider(UIElement@ parent,const String& label, float target, float min=0.0f, float max = 1.0f){
+  /*UIElement@ container = UIElement();
+  parent.AddChild(container);
+  container.SetStyleAuto();
+  container.SetLayout(LM_VERTICAL);
+  container.SetMaxSize(2147483647, 16);*/
+  //textcontainer.verticalAlignment = VA_TOP;
+  //textcontainer.layoutMode = LM_HORIZONTAL;
+
+  UIElement@ slidercontainer = UIElement();
+  parent.AddChild(slidercontainer);
+  slidercontainer.SetStyleAuto();
+  slidercontainer.SetLayout(LM_HORIZONTAL);
+  slidercontainer.SetMaxSize(2147483647, 16);
+
+  Text@ text = Text();
+  slidercontainer.AddChild(text);
+  text.SetStyleAuto();
+  //text.SetAlignment(HA_LEFT,VA_TOP);
+  text.text=label;
+  text.SetMinSize(100, 16);
+  text.SetMaxSize(100, 16);
+
+  /*Text@ valuetext = Text();
+  container.AddChild(valuetext);
+  valuetext.SetStyleAuto();
+  //valuetext.SetAlignment(HA_RIGHT, VA_TOP);
+  valuetext.text=String(target);
+  valuetext.SetMaxSize(2147483647, 16);*/
+
+  Slider@ slider = Slider();
+  slidercontainer.AddChild(slider);
+  slider.SetStyleAuto();
+  //slider.SetAlignment(HA_LEFT, VA_TOP);
+  slider.name = label;
+  slider.range = 1.0f;
+  slider.value = target;
+  slider.SetMaxSize(2147483647, 16);
+  slider.SetMinSize(200, 8);
+
+  Text@ valuetext = Text();
+  slidercontainer.AddChild(valuetext);
+  valuetext.SetStyleAuto();
+  //valuetext.SetAlignment(HA_RIGHT, VA_TOP);
+  valuetext.textAlignment=HA_RIGHT;
+  valuetext.text=String(target);
+  valuetext.SetMinSize(50, 16);
+  valuetext.SetMaxSize(50, 16);
+
+  //set the vars to hold onto to use in the handler
+  //slider.vars["var"]=target;
+  //slider.vars["var_value"]=valuetext;
+  SubscribeToEvent(slider, "sliderChanged", "HandleSliderChanged");
+}
+void HandleSliderChanged(StringHash eventType, VariantMap& eventData){
+
+}
 
 void HandleControlClicked(StringHash eventType, VariantMap& eventData)
 {
@@ -220,13 +324,13 @@ void MoveCamera(float timeStep)
     // Read WASD keys and move the camera scene node to the corresponding direction if they are pressed
     // Use the Translate() function (default local space) to move relative to the node's orientation.
     if (input.keyDown['W'])
-      cameraNode.Translate(Vector3(0.0f, 0.0f, 1.0f) * MOVE_SPEED * timeStep);
+      cameraNode.Translate(Vector3(0.0f, 0.0f, 0.25f) * MOVE_SPEED * timeStep);
       if (input.keyDown['S'])
-        cameraNode.Translate(Vector3(0.0f, 0.0f, -1.0f) * MOVE_SPEED * timeStep);
+        cameraNode.Translate(Vector3(0.0f, 0.0f, -0.25f) * MOVE_SPEED * timeStep);
         if (input.keyDown['A'])
-          cameraNode.Translate(Vector3(-1.0f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
+          cameraNode.Translate(Vector3(-0.25f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
           if (input.keyDown['D'])
-            cameraNode.Translate(Vector3(1.0f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
+            cameraNode.Translate(Vector3(0.25f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
 }
 
 void SubscribeToEvents(){
