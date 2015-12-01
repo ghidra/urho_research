@@ -1,47 +1,46 @@
 #include "Scripts/Utilities/Sample.as"
 
-//global fractal parameters
-uint    f_fractal             = 0;
-float   f_scale               = 2.0f;
-float   f_power               = 8.0f;
-float   f_surfacedetail       = 2.0f;
-float   f_surfacesmoothness   = 0.8f;
-float   f_boundingradius      = 5.0f;
-Vector3 f_offset              = Vector3(0.71f,0.66f,0.54f);
-Vector3 f_shift               = Vector3();
-
-uint    f_coloriterations     = 4;
-Vector3 f_color1              = Vector3(1.0f, 1.0f, 1.0f);
-float   f_color1intensity     = 0.45f;
-Vector3 f_color2              = Vector3(0.1f, 0.1f, 0.8f);
-float   f_color2intensity     = 0.3f;
-Vector3 f_color3              = Vector3(0.8f, 0.5f, 0.1f);
-float   f_color3intensity     = 0.0f;
-bool    f_transparent         = false;
-float   f_gamma               = 1.0f;
-
-Vector3 f_light               = Vector3(-16.0f, 100.0f, -60.0f);
-Vector2 f_myambientcolor      = Vector2(0.5f, 0.3f);
-Vector3 f_background1color    = Vector3(0.2f, 0.2f, 0.8f);
-Vector3 f_background2color    = Vector3();
-Vector3 f_innerglowcolor      = Vector3(0.2f, 0.2f, 0.8f);
-float   f_innerglowintensity  = 0.0f;
-Vector3 f_outerglowcolor      = Vector3(1.0f, 1.0f, 1.0f);
-float   f_outerglowintensity  = 0.0f;
-float   f_fog                 = 0.0f;
-float   f_fogfalloff          = 0.0f;
-float   f_specularity         = 0.8f;
-float   f_specularexponent    = 4.0f;
-
-float   f_aointensity         = 0.5f;
-float   f_aospread            = 9.0f;
-//------
-
 Viewport@ viewport_;
 Window@ window;
+VariantMap fractaldata;
 
 void Start(){
   SampleStart();
+
+  fractaldata["Fractal"]             = 0;
+  fractaldata["Scale"]               = 2.0f;
+  fractaldata["Power"]               = 8.0f;
+  fractaldata["SurfaceDetail"]       = 2.0f;
+  fractaldata["SurfaceSmoothness"]   = 0.8f;
+  fractaldata["BoundingRadius"]      = 5.0f;
+  fractaldata["Offset"]              = Vector3(0.71f,0.66f,0.54f);
+  fractaldata["Shift"]               = Vector3();
+
+  fractaldata["ColorIterations"]     = 4;
+  fractaldata["Color1"]              = Vector3(1.0f, 1.0f, 1.0f);
+  fractaldata["Color1Intensity"]     = 0.45f;
+  fractaldata["Color2"]              = Vector3(0.1f, 0.1f, 0.8f);
+  fractaldata["Color2Intensity"]     = 0.3f;
+  fractaldata["Color3"]              = Vector3(0.8f, 0.5f, 0.1f);
+  fractaldata["Color3Intensity"]     = 0.0f;
+  fractaldata["Transparent"]         = false;
+  fractaldata["Gamma"]               = 1.0f;
+
+  fractaldata["Light"]               = Vector3(-16.0f, 100.0f, -60.0f);
+  fractaldata["MyAmbientColor"]      = Vector2(0.5f, 0.3f);
+  fractaldata["Background1Color"]    = Vector3(0.2f, 0.2f, 0.8f);
+  fractaldata["Background2Color"]    = Vector3();
+  fractaldata["InnerglowColor"]      = Vector3(0.2f, 0.2f, 0.8f);
+  fractaldata["InnerglowIntensity"]  = 0.0f;
+  fractaldata["OuterGlowColor"]      = Vector3(1.0f, 1.0f, 1.0f);
+  fractaldata["OuterGlowIntensity"]  = 0.0f;
+  fractaldata["Fog"]                 = 0.0f;
+  fractaldata["FogFalloff"]          = 0.0f;
+  fractaldata["Specularity"]         = 0.8f;
+  fractaldata["SpecularSxponent"]    = 4.0f;
+
+  fractaldata["AoIntensity"]         = 0.5f;
+  fractaldata["AoSpread"]            = 9.0f;
 
   // Load XML file containing default UI style sheet
   XMLFile@ style = cache.GetResource("XMLFile", "UI/DefaultStyle.xml");
@@ -66,23 +65,25 @@ void InitWindow(){
   ui.root.AddChild(window);
 
   // Set Window size and layout settings
-  window.SetMinSize(384, 192);
-  //window.SetMaxSize(1280, 720);
+  window.SetMinSize(384, 400);
+  window.SetMaxSize(384, 800);
   //window.SetLayout(LM_VERTICAL, 6, IntRect(6, 6, 6, 6));
   window.SetLayout(LM_VERTICAL);
-  window.SetAlignment(HA_CENTER, VA_CENTER);
+  //window.SetAlignment(HA_CENTER, VA_CENTER);
+  window.movable=true;
   window.name = "Window";
 
   // Create Window 'titlebar' container
   UIElement@ titleBar = UIElement();
   titleBar.SetMinSize(0, 24);
+  titleBar.SetMaxSize(384, 24);
   titleBar.verticalAlignment = VA_TOP;
   titleBar.layoutMode = LM_HORIZONTAL;
 
   // Create the Window title Text
   Text@ windowTitle = Text();
   windowTitle.name = "WindowTitle";
-  windowTitle.text = "Fractals";
+  windowTitle.text = "Attributes";
 
   // Create the Window's close button
   //Button@ buttonClose = Button();
@@ -106,10 +107,7 @@ void InitWindow(){
   //SubscribeToEvent(buttonClose, "Released", "HandleClosePressed");
 
   // Subscribe also to all UI mouse clicks just to see where we have clicked
-  SubscribeToEvent("UIMouseClick", "HandleControlClicked");
-
-  ///make the sliders
-  //CreateSlider(window, "", power, 4);
+  //SubscribeToEvent("UIMouseClick", "HandleControlClicked");
 }
 
 void InitControls(){
@@ -117,109 +115,152 @@ void InitControls(){
   //UIElement@ myslider = CreateSlider("test");
   //CreateSlider(window,"fractal",f_fractal,0,8);
 
-  ScrollView@ details = ScrollView();
-  window.AddChild(details);
-  
-  //details.SetLayout(LM_HORIZONTAL);
-  details.SetMaxSize(384,100);
-  //details.SetAlignment(HA_LEFT,VA_TOP);
-  //details.SetMaxSize(2147483647,100);
-  details.SetStyleAuto();
-  details.SetScrollBarsVisible(false,true);
-  UIElement@ sliders = UIElement();
-  details.AddChild(sliders);
-  sliders.SetLayout(LM_VERTICAL);
-  //sliders.SetMaxSize(2147483647,2147483647);
-  //details.verticalAlignment = VA_TOP;
-  //details.layoutMode = LM_HORIZONTAL;
+  UIElement@ dial_main = CreateScrollableElement(window,"Fractal");
 
-  CreateSlider(sliders,"scale",f_scale,-10.0f,10.0f);//
-  CreateSlider(sliders,"power",f_power,-20.0f,20.0f);//
-  CreateSlider(sliders,"surface detail",f_surfacedetail,0.1f,2.0f);//0.1,2.0
-  CreateSlider(sliders,"surface smoothness",f_surfacesmoothness,0.01f,1.0f);//0.01,1.0
-  CreateSlider(sliders,"boundingradius",f_boundingradius,0.1f,150.0);//0.1,150
-  CreateSlider(sliders,"offset x",f_offset.x,-3.0f,3.0f);//-3,3
-  CreateSlider(sliders,"offset y",f_offset.y,-3.0f,3.0f);//
-  CreateSlider(sliders,"offset z",f_offset.z,-3.0f,3.0f);//
-  CreateSlider(sliders,"shift x",f_shift.x,-3.0f,3.0f);//-3,3
-  CreateSlider(sliders,"shift y",f_shift.y,-3.0f,3.0f);//
-  CreateSlider(sliders,"shift z",f_shift.z,-3.0f,3.0f);//
+  CreateSlider(dial_main,"scale","Scale",1,0,-10.0f,10.0f);//
+  CreateSlider(dial_main,"power","Power",1,0,-20.0f,20.0f);//
+  CreateSlider(dial_main,"surface detail","SurfaceDetail",1,0,0.1f,2.0f);//0.1,2.0
+  CreateSlider(dial_main,"surface smoothness","SurfaceSmoothness",1,0,0.01f,1.0f);//0.01,1.0
+  CreateSlider(dial_main,"boundingradius","boundingRadius",1,0,0.1f,150.0);//0.1,150
+  CreateSlider(dial_main,"offset x","Offset",3,0,-3.0f,3.0f);//-3,3
+  CreateSlider(dial_main,"offset y","Offset",3,1,-3.0f,3.0f);//
+  CreateSlider(dial_main,"offset z","Offset",1,2,-3.0f,3.0f);//
+  CreateSlider(dial_main,"shift x","Shift",3,0,-3.0f,3.0f);//-3,3
+  CreateSlider(dial_main,"shift y","Shift",3,1,-3.0f,3.0f);//
+  CreateSlider(dial_main,"shift z","Shift",3,2,-3.0f,3.0f);//
 
-  //details.SetStyleAuto();
-  //details.UpdateLayout();
+  UIElement@ dial_color = CreateScrollableElement(window,"Color");
 
-  /*CreateSlider(window,"color iterations",f_coloriterations,0.0f,30.0f);
-  CreateSlider(window,"color 1 r",f_color1.x,0.0f,1.0f);
-  CreateSlider(window,"color 1 g",f_color1.y,0.0f,1.0f);
-  CreateSlider(window,"color 1 b",f_color1.z,0.0f,1.0f);
-  CreateSlider(window,"color 1 intensity",f_color1intensity,0.0f,3.0f);
-  CreateSlider(window,"color 2 r",f_color2.x,0.0f,1.0f);
-  CreateSlider(window,"color 2 g",f_color2.y,0.0f,1.0f);
-  CreateSlider(window,"color 2 b",f_color2.z,0.0f,1.0f);
-  CreateSlider(window,"color 2 intensity",f_color2intensity,0.0f,3.0f);
-  CreateSlider(window,"color 3 r",f_color3.x,0.0f,1.0f);
-  CreateSlider(window,"color 3 g",f_color3.y,0.0f,1.0f);
-  CreateSlider(window,"color 3 b",f_color3.z,0.0f,1.0f);
-  CreateSlider(window,"color 3 intensity",f_color3intensity,0.0f,3.0f);
-  //CreateSlider(window,"color iterations",f_coloriterations,0.0f,30.0f);//0,30
-  CreateSlider(window,"gamma",f_gamma,0.1f,2.0f);*/
+  CreateSlider(dial_color,"color iterations","ColorIterations",0,0,0.0f,30.0f);
+  CreateSlider(dial_color,"color 1 r","Color1",3);
+  CreateSlider(dial_color,"color 1 g","Color1",3,1);
+  CreateSlider(dial_color,"color 1 b","Color1",3,2);
+  CreateSlider(dial_color,"color 1 intensity","Color1Intensity",1,0,0.0f,3.0f);
+  CreateSlider(dial_color,"color 2 r","Color2",3);
+  CreateSlider(dial_color,"color 2 g","Color2",3,1);
+  CreateSlider(dial_color,"color 2 b","Color2",3,2);
+  CreateSlider(dial_color,"color 2 intensity","Color2Intensity",1,0,0.0f,3.0f);
+  CreateSlider(dial_color,"color 3 r","Color3",3);
+  CreateSlider(dial_color,"color 3 g","Color3",3,1);
+  CreateSlider(dial_color,"color 3 b","Color3",3,2);
+  CreateSlider(dial_color,"color 3 intensity","Color3Intensity",1,0,0.0f,3.0f);
+  //CreateSlider(dial_color,"color iterations",f_coloriterations,0.0f,30.0f);//0,30
+  CreateSlider(dial_color,"gamma","Gamma",1,0,0.1f,2.0f);
 
-  /*Vector3 color1              = Vector3(1.0f, 1.0f, 1.0f);
-  float   color1intensity     = 0.45f;
-  Vector3 color2              = Vector3(0.1f, 0.1f, 0.8f);
-  float   color2intensity     = 0.3f;
-  Vector3 color3              = Vector3(0.8f, 0.5f, 0.1f);
-  float   color3intensity     = 0.0f;
-  bool    transparent         = false;
-  float   gamma               = 1.0f;
+  UIElement@ dial_shad = CreateScrollableElement(window,"Shading");
 
-  Vector3 light               = Vector3(-16.0f, 100.0f, -60.0f);
-  Vector2 myambientcolor      = Vector2(0.5f, 0.3f);
-  Vector3 background1color    = Vector3(0.2f, 0.2f, 0.8f);
-  Vector3 background2color    = Vector3();
-  Vector3 innerglowcolor      = Vector3(0.2f, 0.2f, 0.8f);
-  float   innerglowintensity  = 0.0f;
-  Vector3 outerglowcolor      = Vector3(1.0f, 1.0f, 1.0f);
-  float   outerglowintensity  = 0.0f;
-  float   fog                 = 0.0f;
-  float   fogfalloff          = 0.0f;
-  float   specularity         = 0.8f;
-  float   specularexponent    = 4.0f;
-
-  float aointensity           = 0.5f;
-  float aospread              = 9.0f;*/
+  CreateSlider(dial_shad,"light x","Light",3,0,-300.0f,300.0f);
+  CreateSlider(dial_shad,"light y","Light",3,1,-300.0f,300.0f);
+  CreateSlider(dial_shad,"light z","Light",3,2,-300.0f,300.0f);
+  CreateSlider(dial_shad,"ambient light","MyAmbientColor",2,0,0.0f,1.0f);
+  CreateSlider(dial_shad,"ambient bg","MyAmbientColor",2,1,0.0f,1.0f);
+  CreateSlider(dial_shad,"bg 1 r","Background1Color",3);
+  CreateSlider(dial_shad,"bg 1 g","Background1Color",3,1);
+  CreateSlider(dial_shad,"bg 1 b","Background1Color",3,2);
+  CreateSlider(dial_shad,"bg 2 r","Background2Color",3);
+  CreateSlider(dial_shad,"bg 2 g","Background2Color",3,1);
+  CreateSlider(dial_shad,"bg 2 b","Background2Color",3,2);
+  CreateSlider(dial_shad,"inner glow r","InnerGlowColor",3);
+  CreateSlider(dial_shad,"inner glow g","InnerGlowColor",3,1);
+  CreateSlider(dial_shad,"inner glow b","InnerGlowColor",3,2);
+  CreateSlider(dial_shad,"inner glow intensity","InnerGlowIntensity");
+  CreateSlider(dial_shad,"outer glow r","OuterGlowColor",3);
+  CreateSlider(dial_shad,"outer glow g","OuterGlowColor",3,1);
+  CreateSlider(dial_shad,"outer glow b","OuterGlowColor",3,2);
+  CreateSlider(dial_shad,"outer glow intensity","OuterGlowIntensity");
+  CreateSlider(dial_shad,"fog","Fog");
+  CreateSlider(dial_shad,"fog falloff","FogFalloff");
+  CreateSlider(dial_shad,"specularity","Specularity");
+  CreateSlider(dial_shad,"specular exponent","SpecularExponent");
+  CreateSlider(dial_shad,"ao intensity","AoIntensity");
+  CreateSlider(dial_shad,"ao spread","AoSpread");
 
 }
 
-void CreateSlider(UIElement@ parent,const String& label, float target, float min=0.0f, float max = 1.0f){
-  /*UIElement@ container = UIElement();
+UIElement@ CreateScrollableElement(UIElement@ parent,const String& label){
+  //make the whole container
+  UIElement@ container = UIElement();
   parent.AddChild(container);
-  container.SetStyleAuto();
+  container.size = IntVector2(380, 118);
   container.SetLayout(LM_VERTICAL);
-  container.SetMaxSize(2147483647, 16);*/
-  //textcontainer.verticalAlignment = VA_TOP;
-  //textcontainer.layoutMode = LM_HORIZONTAL;
+  //view.SetStyleAuto();
+  //make a title bar for it
+  UIElement@ titlebar = UIElement();
+  container.AddChild(titlebar);
+  titlebar.SetMinSize(0, 18);
+  titlebar.SetMaxSize(384, 18);
+  titlebar.verticalAlignment = VA_TOP;
+  titlebar.layoutMode = LM_HORIZONTAL;
 
+  // Create the Window title Text
+  Text@ titletext = Text();
+  titlebar.AddChild(titletext);
+  titletext.SetMinSize(0, 18);
+  titletext.SetMaxSize(380, 18);
+  titletext.SetStyleAuto();
+  //titletext.name = label;
+  titletext.text = label;
+  //
+
+  ScrollView@ view = ScrollView();
+  container.AddChild(view);
+  view.size = IntVector2(380, 100);
+  view.SetStyleAuto();
+  
+  view.SetMaxSize(380,100);
+  view.SetStyleAuto();
+  view.SetScrollBarsVisible(false,true);
+  
+  UIElement@ content = UIElement();
+  view.contentElement = content;
+  content.SetLayout(LM_VERTICAL);
+
+  return content;
+}
+
+void CreateSlider(UIElement@ parent,const String& label, String& target, const uint type=1, const uint index=0, float min=0.0f, float max = 1.0f){
+  //convert variant value to number
+  float val = 1.0f;
+  Variant vtarget = fractaldata[target];
+  switch(type){
+    case 0:
+      val = float(vtarget.GetInt());
+      break;
+    case 1:
+      val = vtarget.GetFloat();
+      break;
+    case 2:
+      if(index==0){
+        val = vtarget.GetVector2().x;
+      }else{
+        val = vtarget.GetVector2().y;
+      }
+      break;
+    case 3:
+      if(index==0){
+        val = vtarget.GetVector3().x;
+      }else if(index==1){
+        val = vtarget.GetVector3().y;
+      }else{
+        val = vtarget.GetVector3().z;
+      }
+      break;
+  }
+  //-----
   UIElement@ slidercontainer = UIElement();
   parent.AddChild(slidercontainer);
   slidercontainer.SetStyleAuto();
   slidercontainer.SetLayout(LM_HORIZONTAL);
-  slidercontainer.SetMaxSize(2147483647, 16);
+  //slidercontainer.SetMinSize(100, 16);
+  //slidercontainer.SetMaxSize(376, 16);
+  slidercontainer.size = IntVector2(367, 16);
 
   Text@ text = Text();
   slidercontainer.AddChild(text);
   text.SetStyleAuto();
-  //text.SetAlignment(HA_LEFT,VA_TOP);
   text.text=label;
   text.SetMinSize(100, 16);
   text.SetMaxSize(100, 16);
-
-  /*Text@ valuetext = Text();
-  container.AddChild(valuetext);
-  valuetext.SetStyleAuto();
-  //valuetext.SetAlignment(HA_RIGHT, VA_TOP);
-  valuetext.text=String(target);
-  valuetext.SetMaxSize(2147483647, 16);*/
 
   Slider@ slider = Slider();
   slidercontainer.AddChild(slider);
@@ -227,7 +268,7 @@ void CreateSlider(UIElement@ parent,const String& label, float target, float min
   //slider.SetAlignment(HA_LEFT, VA_TOP);
   slider.name = label;
   slider.range = 1.0f;
-  slider.value = target;
+  slider.value = fit(val,min,max);
   slider.SetMaxSize(2147483647, 16);
   slider.SetMinSize(200, 8);
 
@@ -236,17 +277,64 @@ void CreateSlider(UIElement@ parent,const String& label, float target, float min
   valuetext.SetStyleAuto();
   //valuetext.SetAlignment(HA_RIGHT, VA_TOP);
   valuetext.textAlignment=HA_RIGHT;
-  valuetext.text=String(target);
+  valuetext.name="value_"+label;
+  valuetext.text=String(val);
   valuetext.SetMinSize(50, 16);
   valuetext.SetMaxSize(50, 16);
 
   //set the vars to hold onto to use in the handler
-  //slider.vars["var"]=target;
-  //slider.vars["var_value"]=valuetext;
+  slider.vars["var"]=target;//the variable that we need to update
+  slider.vars["min"]=min;
+  slider.vars["max"]=max;
+  //slider.vars["input"]=valuetext;
+  slider.vars["input"]=label;
+  slider.vars["type"]=type;//the type of variable 0=uint, 1=float, 2=vector2,3=vector3
+  slider.vars["index"]=index;//index of element incase a vector
+
   SubscribeToEvent(slider, "sliderChanged", "HandleSliderChanged");
 }
 void HandleSliderChanged(StringHash eventType, VariantMap& eventData){
+  RenderPathCommand pt = renderer.viewports[0].renderPath.commands[2];
 
+  Slider@ slider = GetEventSender();
+  float newvalue = fit(eventData["Value"].GetFloat(),0.0f,1.0f,slider.vars["min"].GetFloat(),slider.vars["max"].GetFloat());
+  Text@ value = window.GetChild("value_"+slider.vars["input"].GetString(), true);
+  //now handle the value
+  uint t = slider.vars["type"].GetInt();
+  uint i = slider.vars["index"].GetInt();
+  Variant v = fractaldata[slider.vars["var"].GetString()];
+
+  switch(t){
+    case 0:
+      v = int(newvalue);
+      value.text = String(v.GetInt());
+      break;
+    case 1:
+      v = newvalue;
+      value.text = String(v.GetFloat());
+    case 2:
+      if(i==0){
+        v = Vector2(newvalue,v.GetVector2().y);
+        value.text = String(v.GetVector2().x);
+      }else{
+        v = Vector2(v.GetVector2().x, newvalue);
+        value.text = String(v.GetVector2().y);
+      }
+    case 3:
+      if(i==0){
+        v = Vector3(newvalue,v.GetVector3().y,v.GetVector3().z);
+        value.text = String(v.GetVector3().x);
+      }else if(i==1){
+        v = Vector3(v.GetVector3().x,newvalue,v.GetVector3().z);
+        value.text = String(v.GetVector3().y);
+      }else{
+        v = Vector3(v.GetVector3().x,v.GetVector3().y,newvalue);
+        value.text = String(v.GetVector3().z);
+      }
+  }
+
+  pt.shaderParameters[slider.vars["var"].GetString()]=v;
+  renderer.viewports[0].renderPath.commands[2] = pt;
 }
 
 void HandleControlClicked(StringHash eventType, VariantMap& eventData)
@@ -364,3 +452,9 @@ void HandleUpdate(StringHash eventType, VariantMap& eventData){
 
 // Create XML patch instructions for screen joystick layout specific to this sample app
 String patchInstructions = "";
+
+
+//--------------
+float fit(const float v, const float l1, const float h1, const float l2=0.0f,const float h2=1.0f){
+  return Clamp( l2 + (v - l1) * (h2 - l2) / (h1 - l1), l2,h2);
+}
