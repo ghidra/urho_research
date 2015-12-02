@@ -3,11 +3,14 @@
 Viewport@ viewport_;
 Window@ window;
 bool windowopen;
-//bool fullscreen;
+bool fullscreen;
 VariantMap fractaldata;
 
 void Start(){
   //SampleStart();
+
+  fractaldata["CamPos"];
+  fractaldata["CamRot"];
 
   fractaldata["Fractal"]             = 0;
   fractaldata["Scale"]               = 2.0f;
@@ -39,7 +42,7 @@ void Start(){
   fractaldata["Fog"]                 = 0.0f;
   fractaldata["FogFalloff"]          = 0.0f;
   fractaldata["Specularity"]         = 0.8f;
-  fractaldata["SpecularSxponent"]    = 4.0f;
+  fractaldata["SpecularExponent"]    = 4.0f;
 
   fractaldata["AoIntensity"]         = 0.5f;
   fractaldata["AoSpread"]            = 9.0f;
@@ -64,6 +67,13 @@ void ToggleParameters(){
     return;
   }
 
+  //get position information
+  IntVector2 res = IntVector2(graphics.width,graphics.height);
+  res-=IntVector2(384,400);
+  int posx = int(res.x/2.0);
+  int posy = int(res.y/2.0);
+  IntVector2 pos=IntVector2(posx,posy);
+
   input.mouseVisible = true;
 
   window = Window();
@@ -71,6 +81,7 @@ void ToggleParameters(){
 
   window.SetMinSize(384, 400);
   window.SetMaxSize(384, 800);
+  window.SetPosition(pos.x,pos.y);//
   //window.SetLayout(LM_VERTICAL, 6, IntRect(6, 6, 6, 6));
   window.SetLayout(LM_VERTICAL);
   //window.SetAlignment(HA_CENTER, VA_CENTER);
@@ -175,10 +186,9 @@ void ToggleParameters(){
   CreateSlider(dial_shad,"specularity","Specularity");
   CreateSlider(dial_shad,"specular exponent","SpecularExponent");
   CreateSlider(dial_shad,"ao intensity","AoIntensity");
-  CreateSlider(dial_shad,"ao spread","AoSpread");
+  CreateSlider(dial_shad,"ao spread","AoSpread",1,0,0.0f,20.0f);
 
   windowopen=true;
-
 }
 
 UIElement@ CreateScrollableElement(UIElement@ parent,const String& label){
@@ -222,31 +232,31 @@ UIElement@ CreateScrollableElement(UIElement@ parent,const String& label){
   return content;
 }
 
-void CreateSlider(UIElement@ parent,const String& label, String& target, const uint type=1, const uint index=0, float min=0.0f, float max = 1.0f){
+void CreateSlider(UIElement@ parent,const String& label, String target, const uint type=1, const uint index=0, float min=0.0f, float max = 1.0f){
   //convert variant value to number
   float val = 1.0f;
-  Variant vtarget = fractaldata[target];
+  //Variant vtarget = fractaldata[target];
   switch(type){
     case 0:
-      val = float(vtarget.GetInt());
+      val = float(fractaldata[target].GetInt());
       break;
     case 1:
-      val = vtarget.GetFloat();
+      val = fractaldata[target].GetFloat();
       break;
     case 2:
       if(index==0){
-        val = vtarget.GetVector2().x;
+        val = fractaldata[target].GetVector2().x;
       }else{
-        val = vtarget.GetVector2().y;
+        val = fractaldata[target].GetVector2().y;
       }
       break;
     case 3:
       if(index==0){
-        val = vtarget.GetVector3().x;
+        val = fractaldata[target].GetVector3().x;
       }else if(index==1){
-        val = vtarget.GetVector3().y;
+        val = fractaldata[target].GetVector3().y;
       }else{
-        val = vtarget.GetVector3().z;
+        val = fractaldata[target].GetVector3().z;
       }
       break;
   }
@@ -306,38 +316,43 @@ void HandleSliderChanged(StringHash eventType, VariantMap& eventData){
   //now handle the value
   uint t = slider.vars["type"].GetInt();
   uint i = slider.vars["index"].GetInt();
-  Variant v = fractaldata[slider.vars["var"].GetString()];
+  String id = slider.vars["var"].GetString();
+  //Variant v = fractaldata[id];
+  //fractaldata[id].Clear();
 
   switch(t){
     case 0:
-      v = int(newvalue);
-      value.text = String(v.GetInt());
+      fractaldata[id] = int(newvalue);
+      value.text = String(fractaldata[id].GetInt());
       break;
     case 1:
-      v = newvalue;
-      value.text = String(v.GetFloat());
+      fractaldata[id] = newvalue;
+      value.text = String(fractaldata[id].GetFloat());
+      break;
     case 2:
       if(i==0){
-        v = Vector2(newvalue,v.GetVector2().y);
-        value.text = String(v.GetVector2().x);
+        fractaldata[id] = Vector2(newvalue,fractaldata[id].GetVector2().y);
+        value.text = String(fractaldata[id].GetVector2().x);
       }else{
-        v = Vector2(v.GetVector2().x, newvalue);
-        value.text = String(v.GetVector2().y);
+        fractaldata[id] = Vector2(fractaldata[id].GetVector2().x, newvalue);
+        value.text = String(fractaldata[id].GetVector2().y);
       }
+      break;
     case 3:
       if(i==0){
-        v = Vector3(newvalue,v.GetVector3().y,v.GetVector3().z);
-        value.text = String(v.GetVector3().x);
+        fractaldata[id] = Vector3(newvalue,fractaldata[id].GetVector3().y,fractaldata[id].GetVector3().z);
+        value.text = String(fractaldata[id].GetVector3().x);
       }else if(i==1){
-        v = Vector3(v.GetVector3().x,newvalue,v.GetVector3().z);
-        value.text = String(v.GetVector3().y);
+        fractaldata[id] = Vector3(fractaldata[id].GetVector3().x,newvalue,fractaldata[id].GetVector3().z);
+        value.text = String(fractaldata[id].GetVector3().y);
       }else{
-        v = Vector3(v.GetVector3().x,v.GetVector3().y,newvalue);
-        value.text = String(v.GetVector3().z);
+        fractaldata[id] = Vector3(fractaldata[id].GetVector3().x,fractaldata[id].GetVector3().y,newvalue);
+        value.text = String(fractaldata[id].GetVector3().z);
       }
+      break;
   }
 
-  pt.shaderParameters[slider.vars["var"].GetString()]=v;
+  pt.shaderParameters[slider.vars["var"].GetString()]=fractaldata[id];
   renderer.viewports[0].renderPath.commands[2] = pt;
 }
 
@@ -396,13 +411,30 @@ void SetupViewport(){
   viewport_.SetRenderPath(xml);
   renderer.viewports[0] = viewport_;
 
-  graphics.SetMode(1280,720,false,true,false,false,false,1);
+  fullscreen=true;//this toggles it to be small at first
+  ToggleFullscreen();
+  //graphics.SetMode(1280,720,false,true,false,false,false,1);
 }
 
 void ToggleFullscreen(){
-  bool isfullscreen = graphics.ToggleFullscreen();
-  if(!isfullscreen)
+  IntVector2 res = graphics.desktopResolution;
+  if(fullscreen){
+    
+    res-=IntVector2(1280,720);
+    int posx = int(res.x/2.0);
+    int posy = int(res.y/2.0);
+    IntVector2 pos=IntVector2(posx,posy);
+
     graphics.SetMode(1280,720,false,true,false,false,false,1);
+    graphics.SetWindowPosition(pos.x,pos.y);
+
+    fullscreen=false;
+  }else{
+    graphics.SetMode(res.x,res.y,false,true,false,false,false,1);
+    graphics.SetWindowPosition(0,0);
+
+    fullscreen=true;
+  }
 }
 
 void MoveCamera(float timeStep){
@@ -412,7 +444,13 @@ void MoveCamera(float timeStep){
     return;
 
   // Movement speed as world units per second
-  const float MOVE_SPEED = 20.0f;
+  float MOVE_SPEED = 20.0f;
+  if(input.keyDown[KEY_SHIFT])
+    MOVE_SPEED*=0.1;
+  if(input.keyDown[KEY_CTRL])
+    MOVE_SPEED*=0.1;
+  if(input.keyDown[KEY_ALT])
+    MOVE_SPEED*=0.1;
   // Mouse sensitivity as degrees per pixel
   const float MOUSE_SENSITIVITY = 0.1f;
 
@@ -429,12 +467,12 @@ void MoveCamera(float timeStep){
   // Use the Translate() function (default local space) to move relative to the node's orientation.
   if (input.keyDown['W'])
     cameraNode.Translate(Vector3(0.0f, 0.0f, 0.25f) * MOVE_SPEED * timeStep);
-    if (input.keyDown['S'])
-      cameraNode.Translate(Vector3(0.0f, 0.0f, -0.25f) * MOVE_SPEED * timeStep);
-      if (input.keyDown['A'])
-        cameraNode.Translate(Vector3(-0.25f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
-        if (input.keyDown['D'])
-          cameraNode.Translate(Vector3(0.25f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
+  if (input.keyDown['S'])
+    cameraNode.Translate(Vector3(0.0f, 0.0f, -0.25f) * MOVE_SPEED * timeStep);
+  if (input.keyDown['A'])
+    cameraNode.Translate(Vector3(-0.25f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
+  if (input.keyDown['D'])
+    cameraNode.Translate(Vector3(0.25f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
 }
 
 void SubscribeToEvents(){
@@ -449,6 +487,46 @@ void myHandleKeyDown(StringHash eventType, VariantMap& eventData){
     ToggleFullscreen();
   else if (key == KEY_ESC) 
     engine.Exit();
+  else if (key == KEY_F1) 
+    SaveParameters(1);
+  else if (key == KEY_F2) 
+    SaveParameters(2);
+  else if (key == KEY_F3) 
+    SaveParameters(3);
+  else if (key == KEY_F4) 
+    SaveParameters(4);
+  else if (key == KEY_F5) 
+    SaveParameters(5);
+  else if (key == KEY_F6) 
+    SaveParameters(6);
+  else if (key == KEY_F7) 
+    SaveParameters(7);
+  else if (key == KEY_F8) 
+    SaveParameters(8);
+  else if (key == KEY_F9) 
+    SaveParameters(9);
+  else if (key == KEY_F10) 
+    SaveParameters(0);
+  else if (key == KEY_1) 
+    LoadParameters(1);
+  else if (key == KEY_2) 
+    LoadParameters(2);
+  else if (key == KEY_3) 
+    LoadParameters(3);
+  else if (key == KEY_4) 
+    LoadParameters(4);
+  else if (key == KEY_5) 
+    LoadParameters(5);
+  else if (key == KEY_6) 
+    LoadParameters(6);
+  else if (key == KEY_7) 
+    LoadParameters(7);
+  else if (key == KEY_8) 
+    LoadParameters(8);
+  else if (key == KEY_9) 
+    LoadParameters(9);
+  else if (key == KEY_0) 
+    LoadParameters(0);
 }
 void HandleUpdate(StringHash eventType, VariantMap& eventData){
   float timeStep = eventData["TimeStep"].GetFloat(); // Take the frame time step, which is stored as a float
@@ -469,6 +547,83 @@ void HandleUpdate(StringHash eventType, VariantMap& eventData){
 // Create XML patch instructions for screen joystick layout specific to this sample app
 String patchInstructions = "";
 //--------------
+
+//-------------SAVE
+void SaveParameters(const uint id=0){
+  //Print("Trying to save a file");
+  String filename = "fractal_settings/s"+String(id)+".ini";
+  File file(filename, FILE_WRITE);
+  //number 1 get camear info
+  //Print(String(file.open));
+  fractaldata["CamPos"]=cameraNode.worldPosition;
+  fractaldata["CamRot"]=cameraNode.rotation;
+  file.WriteVariantMap(fractaldata);//writes it all bianary i guess
+
+  file.Close();
+}
+void LoadParameters(const uint id=0){
+  String filename = "fractal_settings/s"+String(id)+".ini";
+  File file(filename, FILE_READ);
+  VariantMap vm = file.ReadVariantMap();
+  bool wasopen=false;
+
+  if(windowopen){
+    wasopen=true;
+    ToggleParameters();
+  }
+
+  fractaldata = vm;
+
+  RenderPathCommand pt = renderer.viewports[0].renderPath.commands[2];
+  //Print(String(vm["Scale"].GetFloat()));
+  pt.shaderParameters["Fractal"]             = vm["Fractal"];
+  pt.shaderParameters["Scale"]               = vm["Scale"];
+  pt.shaderParameters["Power"]               = vm["Power"];
+  pt.shaderParameters["SurfaceDetail"]       = vm["SurfaceDetail"];
+  pt.shaderParameters["SurfaceSmoothness"]   = vm["SurfaceSmoothness"];
+  pt.shaderParameters["BoundingRadius"]      = vm["BoundingRadius"];
+  pt.shaderParameters["Offset"]              = vm["Offset"];
+  pt.shaderParameters["Shift"]               = vm["Shift"];
+
+  pt.shaderParameters["ColorIterations"]     = vm["ColorIterations"];
+  pt.shaderParameters["Color1"]              = vm["Color1"];
+  pt.shaderParameters["Color1Intensity"]     = vm["Color1Intensity"];
+  pt.shaderParameters["Color2"]              = vm["Color2"];
+  pt.shaderParameters["Color2Intensity"]     = vm["Color2Intensity"];
+  pt.shaderParameters["Color3"]              = vm["Color3"];
+  pt.shaderParameters["Color3Intensity"]     = vm["Color3Intensity"];
+  //fractaldata["Transparent"]         = vm["Transparent"];
+  pt.shaderParameters["Gamma"]               = vm["Gamma"];
+
+  pt.shaderParameters["Light"]               = vm["Light"];
+  pt.shaderParameters["MyAmbientColor"]      = vm["MyAmbientColor"];
+  pt.shaderParameters["Background1Color"]    = vm["Background1Color"];
+  pt.shaderParameters["Background2Color"]    = vm["Background2Color"];
+  pt.shaderParameters["InnerglowColor"]      = vm["InnerglowColor"];
+  pt.shaderParameters["InnerglowIntensity"]  = vm["InnerglowIntensity"];
+  pt.shaderParameters["OuterGlowColor"]      = vm["OuterGlowColor"];
+  pt.shaderParameters["OuterGlowIntensity"]  = vm["OuterGlowIntensity"];
+  pt.shaderParameters["Fog"]                 = vm["Fog"];
+  pt.shaderParameters["FogFalloff"]          = vm["FogFalloff"];
+  pt.shaderParameters["Specularity"]         = vm["Specularity"];
+  pt.shaderParameters["SpecularExponent"]    = vm["SpecularExponent"];
+
+  pt.shaderParameters["AoIntensity"]         = vm["AoIntensity"];
+  pt.shaderParameters["AoSpread"]            = vm["AoSpread"];
+
+  cameraNode.worldPosition = vm["CamPos"].GetVector3();
+  Quaternion rot = vm["CamRot"].GetQuaternion();
+  pitch = rot.pitch+0.0;
+  yaw = rot.yaw;
+
+  renderer.viewports[0].renderPath.commands[2] = pt;
+
+  if(wasopen)
+    ToggleParameters();
+}
+
+
+
 float fit(const float v, const float l1, const float h1, const float l2=0.0f,const float h2=1.0f){
   return Clamp( l2 + (v - l1) * (h2 - l2) / (h1 - l1), l2,h2);
 }
