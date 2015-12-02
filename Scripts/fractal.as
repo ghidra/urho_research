@@ -2,10 +2,12 @@
 
 Viewport@ viewport_;
 Window@ window;
+bool windowopen;
+//bool fullscreen;
 VariantMap fractaldata;
 
 void Start(){
-  SampleStart();
+  //SampleStart();
 
   fractaldata["Fractal"]             = 0;
   fractaldata["Scale"]               = 2.0f;
@@ -42,14 +44,10 @@ void Start(){
   fractaldata["AoIntensity"]         = 0.5f;
   fractaldata["AoSpread"]            = 9.0f;
 
-  // Load XML file containing default UI style sheet
-  XMLFile@ style = cache.GetResource("XMLFile", "UI/DefaultStyle.xml");
-
-  // Set the loaded style as default style
-  ui.root.defaultStyle = style;
+  XMLFile@ style = cache.GetResource("XMLFile", "UI/DefaultStyle.xml");// Load XML file containing default UI style sheet
+  ui.root.defaultStyle = style;// Set the loaded style as default style
   
-  InitWindow();//window must be the gui
-  InitControls();
+  //ToggleParameters();
 
   CreateScene();
   //CreateInstructions();
@@ -57,14 +55,20 @@ void Start(){
   SubscribeToEvents();
 }
 
-void InitWindow(){
+void ToggleParameters(){
+
+  if(windowopen){
+    windowopen=false;
+    window.Remove();
+    input.mouseVisible = false;
+    return;
+  }
 
   input.mouseVisible = true;
 
   window = Window();
   ui.root.AddChild(window);
 
-  // Set Window size and layout settings
   window.SetMinSize(384, 400);
   window.SetMaxSize(384, 800);
   //window.SetLayout(LM_VERTICAL, 6, IntRect(6, 6, 6, 6));
@@ -80,10 +84,9 @@ void InitWindow(){
   titleBar.verticalAlignment = VA_TOP;
   titleBar.layoutMode = LM_HORIZONTAL;
 
-  // Create the Window title Text
   Text@ windowTitle = Text();
   windowTitle.name = "WindowTitle";
-  windowTitle.text = "Attributes";
+  windowTitle.text = "Parameters";
 
   // Create the Window's close button
   //Button@ buttonClose = Button();
@@ -108,9 +111,8 @@ void InitWindow(){
 
   // Subscribe also to all UI mouse clicks just to see where we have clicked
   //SubscribeToEvent("UIMouseClick", "HandleControlClicked");
-}
 
-void InitControls(){
+  //////NOW FOR ALL THE ACTUAL PARAMETERS
 
   //UIElement@ myslider = CreateSlider("test");
   //CreateSlider(window,"fractal",f_fractal,0,8);
@@ -174,6 +176,8 @@ void InitControls(){
   CreateSlider(dial_shad,"specular exponent","SpecularExponent");
   CreateSlider(dial_shad,"ao intensity","AoIntensity");
   CreateSlider(dial_shad,"ao spread","AoSpread");
+
+  windowopen=true;
 
 }
 
@@ -355,6 +359,18 @@ void HandleControlClicked(StringHash eventType, VariantMap& eventData)
     // Update the Window's title text
     windowTitle.text = "Hello " + name + "!";
 }
+void CreateInstructions(){
+  // Construct new Text object, set string to display and font to use
+  Text@ instructionText = ui.root.CreateChild("Text");
+  instructionText.text = "Use P to toggle parameter pane.";
+  instructionText.SetFont(cache.GetResource("Font", "Fonts/Anonymous Pro.ttf"), 15);
+
+  // Position the text relative to the screen center
+  instructionText.horizontalAlignment = HA_CENTER;
+  instructionText.verticalAlignment = VA_CENTER;
+  instructionText.SetPosition(0, ui.root.height / 4);
+}
+//-------------------
 
 void CreateScene(){
 
@@ -374,64 +390,69 @@ void CreateScene(){
   cameraNode.position = Vector3(0.0f, 0.0f, -2.5f);
 }
 
-void SetupViewport()
-{
-  // Set up a viewport to the Renderer subsystem so that the 3D scene can be seen. We need to define the scene and the camera
-  // at minimum. Additionally we could configure the viewport screen size and the rendering path (eg. forward / deferred) to
-  // use, but now we just use full screen and default render path configured in the engine command line options
+void SetupViewport(){
   viewport_ = Viewport(scene_, cameraNode.GetComponent("Camera"));
-  //XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/research/Dithered_quad.xml");
   XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Fractal.xml");
   viewport_.SetRenderPath(xml);
   renderer.viewports[0] = viewport_;
 
-  //graphics.SetMode(1280,720);//make it render a certain size... doesnt work so well on work computer
   graphics.SetMode(1280,720,false,true,false,false,false,1);
 }
 
-void MoveCamera(float timeStep)
-{
+void ToggleFullscreen(){
+  bool isfullscreen = graphics.ToggleFullscreen();
+  if(!isfullscreen)
+    graphics.SetMode(1280,720,false,true,false,false,false,1);
+}
+
+void MoveCamera(float timeStep){
   // Do not move if the UI has a focused element (the console)
-  if (ui.focusElement !is null)
+  //if (ui.focusElement !is null || windowopen)
+  if (windowopen)
     return;
 
-    // Movement speed as world units per second
-    const float MOVE_SPEED = 20.0f;
-    // Mouse sensitivity as degrees per pixel
-    const float MOUSE_SENSITIVITY = 0.1f;
+  // Movement speed as world units per second
+  const float MOVE_SPEED = 20.0f;
+  // Mouse sensitivity as degrees per pixel
+  const float MOUSE_SENSITIVITY = 0.1f;
 
-    // Use this frame's mouse motion to adjust camera node yaw and pitch. Clamp the pitch between -90 and 90 degrees
-    IntVector2 mouseMove = input.mouseMove;
-    yaw += MOUSE_SENSITIVITY * mouseMove.x;
-    pitch += MOUSE_SENSITIVITY * mouseMove.y;
-    pitch = Clamp(pitch, -90.0f, 90.0f);
+  // Use this frame's mouse motion to adjust camera node yaw and pitch. Clamp the pitch between -90 and 90 degrees
+  IntVector2 mouseMove = input.mouseMove;
+  yaw += MOUSE_SENSITIVITY * mouseMove.x;
+  pitch += MOUSE_SENSITIVITY * mouseMove.y;
+  pitch = Clamp(pitch, -90.0f, 90.0f);
 
-    // Construct new orientation for the camera scene node from yaw and pitch. Roll is fixed to zero
-    cameraNode.rotation = Quaternion(pitch, yaw, 0.0f);
+  // Construct new orientation for the camera scene node from yaw and pitch. Roll is fixed to zero
+  cameraNode.rotation = Quaternion(pitch, yaw, 0.0f);
 
-    // Read WASD keys and move the camera scene node to the corresponding direction if they are pressed
-    // Use the Translate() function (default local space) to move relative to the node's orientation.
-    if (input.keyDown['W'])
-      cameraNode.Translate(Vector3(0.0f, 0.0f, 0.25f) * MOVE_SPEED * timeStep);
-      if (input.keyDown['S'])
-        cameraNode.Translate(Vector3(0.0f, 0.0f, -0.25f) * MOVE_SPEED * timeStep);
-        if (input.keyDown['A'])
-          cameraNode.Translate(Vector3(-0.25f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
-          if (input.keyDown['D'])
-            cameraNode.Translate(Vector3(0.25f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
+  // Read WASD keys and move the camera scene node to the corresponding direction if they are pressed
+  // Use the Translate() function (default local space) to move relative to the node's orientation.
+  if (input.keyDown['W'])
+    cameraNode.Translate(Vector3(0.0f, 0.0f, 0.25f) * MOVE_SPEED * timeStep);
+    if (input.keyDown['S'])
+      cameraNode.Translate(Vector3(0.0f, 0.0f, -0.25f) * MOVE_SPEED * timeStep);
+      if (input.keyDown['A'])
+        cameraNode.Translate(Vector3(-0.25f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
+        if (input.keyDown['D'])
+          cameraNode.Translate(Vector3(0.25f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
 }
 
 void SubscribeToEvents(){
-  // Subscribe HandleUpdate() function for processing update events
   SubscribeToEvent("Update", "HandleUpdate");
+  SubscribeToEvent("KeyDown", "myHandleKeyDown");
 }
-
+void myHandleKeyDown(StringHash eventType, VariantMap& eventData){
+  int key = eventData["Key"].GetInt();
+  if (key == KEY_P)
+    ToggleParameters();
+  else if (key == KEY_F)
+    ToggleFullscreen();
+  else if (key == KEY_ESC) 
+    engine.Exit();
+}
 void HandleUpdate(StringHash eventType, VariantMap& eventData){
-  // Take the frame time step, which is stored as a float
-  float timeStep = eventData["TimeStep"].GetFloat();
-
-  // Move the camera, scale movement with time step
-  MoveCamera(timeStep);
+  float timeStep = eventData["TimeStep"].GetFloat(); // Take the frame time step, which is stored as a float
+  MoveCamera(timeStep);// Move the camera, scale movement with time step
 
   //set the shader parameters in the renderpath to the camera values it needs
   Quaternion rot = cameraNode.rotation;
@@ -444,16 +465,9 @@ void HandleUpdate(StringHash eventType, VariantMap& eventData){
   pt.shaderParameters["CameraYaw"]=Variant(yaw);
   pt.shaderParameters["CameraRoll"]=Variant(roll);
   renderer.viewports[0].renderPath.commands[2] = pt;
-  //Print(viewport_.renderPath.commands[2].shaderParameters[8]);
-  //renderer.viewports[0].renderPath.commands[2].shaderParameters["CameraPitch"]=Variant(pitch);
-  //viewport_.renderPath.commands[2].shaderParameters["CameraYaw"]=Variant(yaw);
-  //viewport_.renderPath.commands[2].shaderParameters["CameraRoll"]=Variant(roll);
 }
-
 // Create XML patch instructions for screen joystick layout specific to this sample app
 String patchInstructions = "";
-
-
 //--------------
 float fit(const float v, const float l1, const float h1, const float l2=0.0f,const float h2=1.0f){
   return Clamp( l2 + (v - l1) * (h2 - l2) / (h1 - l1), l2,h2);

@@ -2,7 +2,7 @@
       <command type="clear" color="fog" depth="1.0" stencil="0" />
       <command type="scenepass" pass="base" vertexlights="true" metadata="base" />
       <!--<command type="quad" pass="fractal" vs="fractal" ps="fractal">-->
-      <command type="quad" pass="fractal" vs="fractal" ps="fractal" psdefines="MENGERSPONGE">
+      <command type="quad" pass="fractal" vs="fractal" ps="fractal" psdefines="MANDELBOX">
             <!--<texture unit="diffuse" name="dither" />
             <texture unit="normal" name="edge" />-->
             <!--<parameter name="myoffset" value="0.71 0.66 0.54" />-->
