@@ -1,3 +1,39 @@
+/**
+ * Fractal Lab's uber 3D fractal shader
+ * Last update: 26 February 2011
+ *
+ * Changelog:
+ *      0.1     - Initial release
+ *      0.2     - Refactor for Fractal Lab
+ *
+ * 
+ * Copyright 2011, Tom Beddard
+ * http://www.subblue.com
+ *
+ * For more generative graphics experiments see:
+ * http://www.subblue.com
+ *
+ * Licensed under the GPL Version 3 license.
+ * http://www.gnu.org/licenses/
+ *
+ * 
+ * Credits and references
+ * ======================
+ * 
+ * http://www.fractalforums.com/3d-fractal-generation/a-mandelbox-distance-estimate-formula/
+ * http://www.fractalforums.com/3d-fractal-generation/revenge-of-the-half-eaten-menger-sponge/msg21700/
+ * http://www.fractalforums.com/index.php?topic=3158.msg16982#msg16982
+ * 
+ * Various other discussions on the fractal can be found here:
+ * http://www.fractalforums.com/3d-fractal-generation/
+ *
+ *
+ -----------------------
+ //http://hirnsohle.de/test/fractalLab/
+ -----------------------
+ * ported to urho3d by jimmy gass 
+*/
+
 #include "Uniforms.glsl"
 #include "Samplers.glsl"
 #include "Transform.glsl"
@@ -6,7 +42,7 @@
 varying vec4 vScreenPos;
 varying mat3 vCamRot;
 //varying vec2 vScreenDim;
-//http://hirnsohle.de/test/fractalLab/
+
 
 
 #ifdef COMPILEPS 
