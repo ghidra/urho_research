@@ -5,9 +5,13 @@ Window@ window;
 bool windowopen;
 bool fullscreen;
 VariantMap fractaldata;
+Array<String> fractaltype;
 
 void Start(){
   //SampleStart();
+  fractaltype.Push("MENGERSPONGE");
+  fractaltype.Push("SPHERESPONGE");
+  fractaltype.Push("MANDELBOX");
 
   fractaldata["CamPos"];
   fractaldata["CamRot"];
@@ -127,6 +131,7 @@ void ToggleParameters(){
 
   //UIElement@ myslider = CreateSlider("test");
   //CreateSlider(window,"fractal",f_fractal,0,8);
+  CreateFractalDropDown(window);
 
   UIElement@ dial_main = CreateScrollableElement(window,"Fractal");
 
@@ -356,6 +361,33 @@ void HandleSliderChanged(StringHash eventType, VariantMap& eventData){
   renderer.viewports[0].renderPath.commands[2] = pt;
 }
 
+void CreateFractalDropDown(UIElement@ parent){
+  DropDownList@ list = DropDownList();
+  parent.AddChild(list);
+  list.SetStyleAuto();
+  list.SetFixedHeight(16);
+  list.resizePopup = true;
+
+  for (uint i = 0; i < fractaltype.length; ++i){
+    Text@ text = Text();
+    list.AddItem(text);
+    text.SetStyleAuto();
+    text.text = fractaltype[i];
+  }
+
+  SubscribeToEvent(list, "ItemSelected", "SetFractalType");
+}
+void SetFractalType(StringHash eventType, VariantMap& eventData){
+  UIElement@ attrEdit = eventData["Element"].GetPtr();
+  int index = eventData["Selection"].GetInt();
+  //Print(String(index));
+
+  RenderPathCommand pt = renderer.viewports[0].renderPath.commands[2];
+  //pt.shaderParameters["CameraPitch"]=Variant(pitch);
+  Print("is:"+pt.pixelShaderDefines);
+  Print("set:"+fractaltype[index]);
+  pt.pixelShaderDefines = fractaltype[index];
+}
 void HandleControlClicked(StringHash eventType, VariantMap& eventData)
 {
     // Get the Text control acting as the Window's title
