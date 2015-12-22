@@ -57,9 +57,10 @@ void Start(){
   //ToggleParameters();
 
   CreateScene();
-  //CreateInstructions();
   SetupViewport();
   SubscribeToEvents();
+  //CreateInstructions();
+
 }
 
 void ToggleParameters(){
@@ -86,9 +87,7 @@ void ToggleParameters(){
   window.SetMinSize(384, 400);
   window.SetMaxSize(384, 800);
   window.SetPosition(pos.x,pos.y);//
-  //window.SetLayout(LM_VERTICAL, 6, IntRect(6, 6, 6, 6));
   window.SetLayout(LM_VERTICAL);
-  //window.SetAlignment(HA_CENTER, VA_CENTER);
   window.movable=true;
   window.name = "Window";
 
@@ -103,34 +102,13 @@ void ToggleParameters(){
   windowTitle.name = "WindowTitle";
   windowTitle.text = "Parameters";
 
-  // Create the Window's close button
-  //Button@ buttonClose = Button();
-  //buttonClose.name = "CloseButton";
-
-  // Add the controls to the title bar
   titleBar.AddChild(windowTitle);
-  //titleBar.AddChild(buttonClose);
 
-  // Add the title bar to the Window
   window.AddChild(titleBar);
-
-  // Apply styles
   window.SetStyleAuto();
   windowTitle.SetStyleAuto();
-  //buttonClose.style = "CloseButton";
-
-  //graphics.ToggleFullscreen();
-
-  // Subscribe to buttonClose release (following a 'press') events
-  //SubscribeToEvent(buttonClose, "Released", "HandleClosePressed");
-
-  // Subscribe also to all UI mouse clicks just to see where we have clicked
-  //SubscribeToEvent("UIMouseClick", "HandleControlClicked");
 
   //////NOW FOR ALL THE ACTUAL PARAMETERS
-
-  //UIElement@ myslider = CreateSlider("test");
-  //CreateSlider(window,"fractal",f_fractal,0,8);
   CreateFractalDropDown(window);
 
   UIElement@ dial_main = CreateScrollableElement(window,"Fractal");
@@ -202,7 +180,6 @@ UIElement@ CreateScrollableElement(UIElement@ parent,const String& label){
   parent.AddChild(container);
   container.size = IntVector2(380, 118);
   container.SetLayout(LM_VERTICAL);
-  //view.SetStyleAuto();
   //make a title bar for it
   UIElement@ titlebar = UIElement();
   container.AddChild(titlebar);
@@ -210,16 +187,13 @@ UIElement@ CreateScrollableElement(UIElement@ parent,const String& label){
   titlebar.SetMaxSize(384, 18);
   titlebar.verticalAlignment = VA_TOP;
   titlebar.layoutMode = LM_HORIZONTAL;
-
   // Create the Window title Text
   Text@ titletext = Text();
   titlebar.AddChild(titletext);
   titletext.SetMinSize(0, 18);
   titletext.SetMaxSize(380, 18);
   titletext.SetStyleAuto();
-  //titletext.name = label;
   titletext.text = label;
-  //
 
   ScrollView@ view = ScrollView();
   container.AddChild(view);
@@ -270,8 +244,6 @@ void CreateSlider(UIElement@ parent,const String& label, String target, const ui
   parent.AddChild(slidercontainer);
   slidercontainer.SetStyleAuto();
   slidercontainer.SetLayout(LM_HORIZONTAL);
-  //slidercontainer.SetMinSize(100, 16);
-  //slidercontainer.SetMaxSize(376, 16);
   slidercontainer.size = IntVector2(367, 16);
 
   Text@ text = Text();
@@ -284,7 +256,6 @@ void CreateSlider(UIElement@ parent,const String& label, String target, const ui
   Slider@ slider = Slider();
   slidercontainer.AddChild(slider);
   slider.SetStyleAuto();
-  //slider.SetAlignment(HA_LEFT, VA_TOP);
   slider.name = label;
   slider.range = 1.0f;
   slider.value = fit(val,min,max);
@@ -294,7 +265,6 @@ void CreateSlider(UIElement@ parent,const String& label, String target, const ui
   Text@ valuetext = Text();
   slidercontainer.AddChild(valuetext);
   valuetext.SetStyleAuto();
-  //valuetext.SetAlignment(HA_RIGHT, VA_TOP);
   valuetext.textAlignment=HA_RIGHT;
   valuetext.name="value_"+label;
   valuetext.text=String(val);
@@ -305,7 +275,6 @@ void CreateSlider(UIElement@ parent,const String& label, String target, const ui
   slider.vars["var"]=target;//the variable that we need to update
   slider.vars["min"]=min;
   slider.vars["max"]=max;
-  //slider.vars["input"]=valuetext;
   slider.vars["input"]=label;
   slider.vars["type"]=type;//the type of variable 0=uint, 1=float, 2=vector2,3=vector3
   slider.vars["index"]=index;//index of element incase a vector
@@ -322,8 +291,6 @@ void HandleSliderChanged(StringHash eventType, VariantMap& eventData){
   uint t = slider.vars["type"].GetInt();
   uint i = slider.vars["index"].GetInt();
   String id = slider.vars["var"].GetString();
-  //Variant v = fractaldata[id];
-  //fractaldata[id].Clear();
 
   switch(t){
     case 0:
@@ -375,41 +342,24 @@ void CreateFractalDropDown(UIElement@ parent){
     text.text = fractaltype[i];
   }
 
-  SubscribeToEvent(list, "ItemSelected", "SetFractalType");
+  SubscribeToEvent(list, "ItemSelected", "SetFractalTypeHandler");
 }
-void SetFractalType(StringHash eventType, VariantMap& eventData){
-  UIElement@ attrEdit = eventData["Element"].GetPtr();
+void SetFractalTypeHandler(StringHash eventType, VariantMap& eventData){
   int index = eventData["Selection"].GetInt();
-  //Print(String(index));
-
-  RenderPathCommand pt = renderer.viewports[0].renderPath.commands[2];
-  //pt.shaderParameters["CameraPitch"]=Variant(pitch);
-  Print("is:"+pt.pixelShaderDefines);
-  Print("set:"+fractaltype[index]);
-  pt.pixelShaderDefines = fractaltype[index];
+  fractaldata["Fractal"]=index;
+  SetFractalType(index);
 }
-void HandleControlClicked(StringHash eventType, VariantMap& eventData)
-{
-    // Get the Text control acting as the Window's title
-    Text@ windowTitle = window.GetChild("WindowTitle", true);
-
-    // Get control that was clicked
-    UIElement@ clicked = eventData["Element"].GetPtr();
-
-    String name = "...?";
-    if (clicked !is null)
-    {
-        // Get the name of the control that was clicked
-        name = clicked.name;
-    }
-
-    // Update the Window's title text
-    windowTitle.text = "Hello " + name + "!";
+void SetFractalType(int index){
+  RenderPathCommand rpc = renderer.viewports[0].renderPath.commands[2];
+  rpc.pixelShaderDefines=String(fractaltype[index]);
+  renderer.viewports[0].renderPath.RemoveCommand(2);
+  renderer.viewports[0].renderPath.AddCommand(rpc);
 }
+
 void CreateInstructions(){
   // Construct new Text object, set string to display and font to use
   Text@ instructionText = ui.root.CreateChild("Text");
-  instructionText.text = "Use P to toggle parameter pane.";
+  instructionText.text = "P to toggle parameter pane\nF to toggle fullscreen\nF1-F10 to bookmark\n1-0 to load bookmark";
   instructionText.SetFont(cache.GetResource("Font", "Fonts/Anonymous Pro.ttf"), 15);
 
   // Position the text relative to the screen center
@@ -609,6 +559,7 @@ void LoadParameters(const uint id=0){
   RenderPathCommand pt = renderer.viewports[0].renderPath.commands[2];
   //Print(String(vm["Scale"].GetFloat()));
   pt.shaderParameters["Fractal"]             = vm["Fractal"];
+
   pt.shaderParameters["Scale"]               = vm["Scale"];
   pt.shaderParameters["Power"]               = vm["Power"];
   pt.shaderParameters["SurfaceDetail"]       = vm["SurfaceDetail"];
@@ -649,6 +600,8 @@ void LoadParameters(const uint id=0){
   yaw = rot.yaw;
 
   renderer.viewports[0].renderPath.commands[2] = pt;
+
+  SetFractalType(vm["Fractal"].GetInt());
 
   if(wasopen)
     ToggleParameters();
