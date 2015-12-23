@@ -12,12 +12,15 @@ void Start(){
   fractaltype.Push("MENGERSPONGE");
   fractaltype.Push("SPHERESPONGE");
   fractaltype.Push("MANDELBOX");
+  fractaltype.Push("MANDELBULB");
 
   fractaldata["CamPos"];
   fractaldata["CamRot"];
 
   fractaldata["Fractal"]             = 0;
   fractaldata["Scale"]               = 2.0f;
+  //fractaldata["MaxIterations"]       = 8;
+  //fractaldata["StepLimit"]           = 60;
   fractaldata["Power"]               = 8.0f;
   fractaldata["SurfaceDetail"]       = 2.0f;
   fractaldata["SurfaceSmoothness"]   = 0.8f;
@@ -50,6 +53,16 @@ void Start(){
 
   fractaldata["AoIntensity"]         = 0.5f;
   fractaldata["AoSpread"]            = 9.0f;
+  //fractaldata["AoIterations"]        = 4;
+
+  fractaldata["SphereHoles"]         = 4.0f;
+  fractaldata["SphereScale"]         = 1.0f;
+  fractaldata["BoxScale"]            = 0.5f;
+  fractaldata["BoxFold"]             = 1.0f;
+  fractaldata["FudgeFactor"]         = 0.0f;
+  fractaldata["JuliaFactor"]         = 0.0f;
+  fractaldata["RadiolariaFactor"]    = 0.0f;
+  fractaldata["Radiolaria"]          = 0.0f;
 
   XMLFile@ style = cache.GetResource("XMLFile", "UI/DefaultStyle.xml");// Load XML file containing default UI style sheet
   ui.root.defaultStyle = style;// Set the loaded style as default style
@@ -114,6 +127,7 @@ void ToggleParameters(){
   UIElement@ dial_main = CreateScrollableElement(window,"Fractal");
 
   CreateSlider(dial_main,"scale","Scale",1,0,-10.0f,10.0f);//
+  //CreateSlider(dial_main,"max iterations","MaxIterations",0,0,1.0f,30.0f);//
   CreateSlider(dial_main,"power","Power",1,0,-20.0f,20.0f);//
   CreateSlider(dial_main,"surface detail","SurfaceDetail",1,0,0.1f,2.0f);//0.1,2.0
   CreateSlider(dial_main,"surface smoothness","SurfaceSmoothness",1,0,0.01f,1.0f);//0.01,1.0
@@ -124,6 +138,17 @@ void ToggleParameters(){
   CreateSlider(dial_main,"shift x","Shift",3,0,-3.0f,3.0f);//-3,3
   CreateSlider(dial_main,"shift y","Shift",3,1,-3.0f,3.0f);//
   CreateSlider(dial_main,"shift z","Shift",3,2,-3.0f,3.0f);//
+
+  UIElement@ dial_extra = CreateScrollableElement(window,"Extra");
+  
+  CreateSlider(dial_extra,"sphere holes","SphereHoles",1,0,3.0f,6.0f);//
+  CreateSlider(dial_extra,"sphere scale","SphereScale",1,0,0.01f,3.0f);//
+  CreateSlider(dial_extra,"box scale","BoxScale",1,0,0.01f,3.0f);//
+  CreateSlider(dial_extra,"box fold","BoxFold",1,0,0.01f,3.0f);//
+  CreateSlider(dial_extra,"fudge factor","FudgeFactor",1,0,0.0f,100.0f);//
+  CreateSlider(dial_extra,"julia factor","JuliaFactor",1,0,0.0f,1.0f);//
+  CreateSlider(dial_extra,"radiolaria factor","RadiolariaFactor",1,0,-2.0f,2.0f);//
+  CreateSlider(dial_extra,"radiolaria","Radiolaria",1,0,0.0f,1.0f);//
 
   UIElement@ dial_color = CreateScrollableElement(window,"Color");
 
@@ -170,6 +195,7 @@ void ToggleParameters(){
   CreateSlider(dial_shad,"specular exponent","SpecularExponent");
   CreateSlider(dial_shad,"ao intensity","AoIntensity");
   CreateSlider(dial_shad,"ao spread","AoSpread",1,0,0.0f,20.0f);
+  CreateSlider(dial_shad,"ao iterations","AoIterations",0,0,1.0f,30.0f);
 
   windowopen=true;
 }
@@ -554,10 +580,21 @@ void LoadParameters(const uint id=0){
     ToggleParameters();
   }
 
+
+  //temporary test of new elemts that wenrent there when making intial bookmarks
+  if(!vm.Contains("SphereHoles"))vm["SphereHoles"]=4.0f;
+  if(!vm.Contains("SphereScale"))vm["SphereScale"]=1.0f;
+  if(!vm.Contains("BoxScale"))vm["BoxScale"]=0.5f;
+  if(!vm.Contains("BoxFold"))vm["BoxFold"]=1.0f;
+  if(!vm.Contains("FudgeFactor"))vm["FudgeFactor"]=0.0f;
+  if(!vm.Contains("JuliaFactor"))vm["JuliaFactor"]=0.0f;
+  if(!vm.Contains("RadiolariaFactor"))vm["RadiolariaFactor"]=0.0f;
+  if(!vm.Contains("Radiolaria"))vm["Radiolaria"]=0.0f;
+
   fractaldata = vm;
 
   RenderPathCommand pt = renderer.viewports[0].renderPath.commands[2];
-  //Print(String(vm["Scale"].GetFloat()));
+
   pt.shaderParameters["Fractal"]             = vm["Fractal"];
 
   pt.shaderParameters["Scale"]               = vm["Scale"];
@@ -593,6 +630,15 @@ void LoadParameters(const uint id=0){
 
   pt.shaderParameters["AoIntensity"]         = vm["AoIntensity"];
   pt.shaderParameters["AoSpread"]            = vm["AoSpread"];
+
+  pt.shaderParameters["SphereHoles"]         = vm["SphereHoles"];
+  pt.shaderParameters["SphereScale"]         = vm["SphereScale"];
+  pt.shaderParameters["BoxScale"]            = vm["BoxScale"];
+  pt.shaderParameters["BoxFold"]             = vm["BoxFold"];
+  pt.shaderParameters["FudgeFactor"]         = vm["FudgeFactor"];
+  pt.shaderParameters["JuliaFactor"]         = vm["JuliaFactor"];
+  pt.shaderParameters["RadiolariaFactor"]    = vm["RadiolariaFactor"];
+  pt.shaderParameters["Radiolaria"]          = vm["Radiolaria"];
 
   cameraNode.worldPosition = vm["CamPos"].GetVector3();
   Quaternion rot = vm["CamRot"].GetQuaternion();

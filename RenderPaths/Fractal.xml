@@ -8,6 +8,8 @@
             <!--<parameter name="myoffset" value="0.71 0.66 0.54" />-->
 
             <parameter name="Scale" value="2.0" />
+            <parameter name="MaxIterations" value="8" />
+            <parameter name="StepLimit" value="60" />
             <parameter name="Power" value="8.0" />
             <parameter name="SurfaceDetail" value="2.0" />
             <parameter name="SurfaceSmoothness" value="0.8" />
@@ -48,6 +50,16 @@
             <parameter name="OutputSize" value="800.0 600.0" />-->
             <parameter name="AoIntensity" value="0.5" />
             <parameter name="AoSpread" value="9.0" />
+            <parameter name="AoIterations" value="4" />
+
+            <parameter name="SphereHoles" value="4.0" />
+            <parameter name="SphereScale" value="1.0" />
+            <parameter name="BoxScale" value="0.5" />
+            <parameter name="BoxFold" value="1.0" />
+            <parameter name="FudgeFactor" value="0.0" />
+            <parameter name="JuliaFactor" value="0.0" />
+            <parameter name="RadiolariaFactor" value="0.0" />
+            <parameter name="Radiolaria" value="0.0" />
 
             <parameter name="ObjectRotation" value="1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0" />
             <parameter name="FractalRotation1" value="1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0" />

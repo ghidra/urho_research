@@ -5,7 +5,7 @@
  * Changelog:
  *      0.1     - Initial release
  *      0.2     - Refactor for Fractal Lab
- *
+ *      0.3     - Refactor for Urho3D (ported by jimmy gass)
  * 
  * Copyright 2011, Tom Beddard
  * http://www.subblue.com
@@ -30,8 +30,7 @@
  *
  -----------------------
  //http://hirnsohle.de/test/fractalLab/
- -----------------------
- * ported to urho3d by jimmy gass 
+ ----------------------- 
 */
 
 #include "Uniforms.glsl"
@@ -61,8 +60,11 @@ varying mat3 vCamRot;
 #ifdef MANDELBOX
     #define dE Mandelbox             // {"label":"Fractal type", "control":"select", "options":["MengerSponge", "SphereSponge", "Mandelbulb", "Mandelbox", "OctahedralIFS", "DodecahedronIFS"]}
 #endif
+#ifdef MANDELBULB
+    #define dE Mandelbulb             // {"label":"Fractal type", "control":"select", "options":["MengerSponge", "SphereSponge", "Mandelbulb", "Mandelbox", "OctahedralIFS", "DodecahedronIFS"]}
+#endif
 
-#define maxIterations 8             // {"label":"Iterations", "min":1, "max":30, "step":1, "group_label":"Fractal parameters"}
+#define maxIterations 8 
 #define stepLimit 60                // {"label":"Max steps", "min":10, "max":300, "step":1}
 
 #define aoIterations 4              // {"label":"AO iterations", "min":0, "max":10, "step":1}
@@ -70,6 +72,9 @@ varying mat3 vCamRot;
 #define minRange 6e-5
 #define bailout 4.0
 #define antialiasing 0.5            // {"label":"Anti-aliasing", "control":"bool", "default":false, "group_label":"Render quality"}
+
+//uniform int cMaxIterations;// 8             // {"label":"Iterations", "min":1, "max":30, "step":1, "group_label":"Fractal parameters"}
+
 
 uniform float cScale;                // {"label":"Scale",        "min":-10,  "max":10,   "step":0.01,     "default":2,    "group":"Fractal", "group_label":"Fractal parameters"}
 uniform float cPower;                // {"label":"Power",        "min":-20,  "max":20,   "step":0.1,     "default":8,    "group":"Fractal"}
@@ -162,10 +167,9 @@ vec3 GetEuler(mat3 R){
 
 //----------------------------------------//
 
-//uniform float sphereHoles;          // {"label":"Holes",        "min":3,    "max":6,    "step":0.01,    "default":4,    "group":"Fractal", "group_label":"Additional parameters"}
-//uniform float sphereScale;          // {"label":"Sphere scale", "min":0.01, "max":3,    "step":0.01,    "default":2.05,    "group":"Fractal"}
-float sphereHoles = 4.0;
-float sphereScale = 1.0;
+#ifdef SPHERESPONGE
+uniform float cSphereHoles;          // {"label":"Holes",        "min":3,    "max":6,    "step":0.01,    "default":4,    "group":"Fractal", "group_label":"Additional parameters"}
+uniform float cSphereScale;          // {"label":"Sphere scale", "min":0.01, "max":3,    "step":0.01,    "default":2.05,    "group":"Fractal"}
 
 // Adapted from Buddhis algorithm
 // http://www.fractalforums.com/3d-fractal-generation/revenge-of-the-half-eaten-menger-sponge/msg21700/
@@ -177,11 +181,11 @@ vec3 SphereSponge(vec3 w)
     float d1, r, md = 100000.0, cd = 0.0;
     
     for (int i = 0; i < int(maxIterations); i++) {
-        vec3 zz = mod(w * k, sphereHoles) - vec3(0.5 * sphereHoles) + cOffset;
+        vec3 zz = mod(w * k, cSphereHoles) - vec3(0.5 * cSphereHoles) + cOffset;
         r = length(zz);
         
         // distance to the edge of the sphere (positive inside)
-        d1 = (sphereScale - r) / k;
+        d1 = (cSphereScale - r) / k;
         k *= cScale;
         
         // intersection
@@ -195,9 +199,10 @@ vec3 SphereSponge(vec3 w)
     
     return vec3(d, cd, md);
 }
+#endif
 
 
-//#ifdef dEMengerSponge
+#ifdef MENGERSPONGE
 // Pre-calculations
 vec3 halfSpongeScale = vec3(0.5) * cScale;
 
@@ -237,20 +242,17 @@ vec3 MengerSponge(vec3 w)
     // The distance estimate, min distance, and fractional iteration count
     return vec3(d * 2.0 / cScale, md, dot(cd, cd));
 }
-//#endif
+#endif
 
-//uniform float sphereScale;          // {"label":"Sphere scale", "min":0.01, "max":3,    "step":0.01,    "default":1,    "group":"Fractal", "group_label":"Additional parameters"}
-//uniform float boxScale;             // {"label":"Box scale",    "min":0.01, "max":3,    "step":0.001,   "default":0.5,  "group":"Fractal"}
-//uniform float boxFold;              // {"label":"Box fold",     "min":0.01, "max":3,    "step":0.001,   "default":1,    "group":"Fractal"}
-//uniform float fudgeFactor;          // {"label":"Box size fudge factor",     "min":0, "max":100,    "step":0.001,   "default":0,    "group":"Fractal"}
+#ifdef MANDELBOX
+uniform float cSphereScale;          // {"label":"Sphere scale", "min":0.01, "max":3,    "step":0.01,    "default":1,    "group":"Fractal", "group_label":"Additional parameters"}
+uniform float cBoxScale;             // {"label":"Box scale",    "min":0.01, "max":3,    "step":0.001,   "default":0.5,  "group":"Fractal"}
+uniform float cBoxFold;              // {"label":"Box fold",     "min":0.01, "max":3,    "step":0.001,   "default":1,    "group":"Fractal"}
+uniform float cFudgeFactor;          // {"label":"Box size fudge factor",     "min":0, "max":100,    "step":0.001,   "default":0,    "group":"Fractal"}
 
-//float sphereScale = 1.0;          // {"label":"Sphere scale", "min":0.01, "max":3,    "step":0.01,    "default":1,    "group":"Fractal", "group_label":"Additional parameters"}
-float boxScale = 0.5;             // {"label":"Box scale",    "min":0.01, "max":3,    "step":0.001,   "default":0.5,  "group":"Fractal"}
-float boxFold = 1.0;              // {"label":"Box fold",     "min":0.01, "max":3,    "step":0.001,   "default":1,    "group":"Fractal"}
-float fudgeFactor = 0.0;
 // Pre-calculations
-float mR2 = boxScale * boxScale;    // Min radius
-float fR2 = sphereScale * mR2;      // Fixed radius
+float mR2 = cBoxScale * cBoxScale;    // Min radius
+float fR2 = cSphereScale * mR2;      // Fixed radius
 vec2  scaleFactor = vec2(cScale, abs(cScale)) / mR2;
 
 // Details about the Mandelbox DE algorithm:
@@ -272,7 +274,7 @@ vec3 Mandelbox(vec3 w)
         // } else if (p < -1.0) {
         //   p = -2.0 - p;
         // }
-        p.xyz = clamp(p.xyz, -boxFold, boxFold) * 2.0 * boxFold - p.xyz;  // box fold
+        p.xyz = clamp(p.xyz, -cBoxFold, cBoxFold) * 2.0 * cBoxFold - p.xyz;  // box fold
         p.xyz *= cFractalRotation1;
         
         // sphere fold:
@@ -294,9 +296,90 @@ vec3 Mandelbox(vec3 w)
     }
     
     // Return distance estimate, min distance, fractional iteration count
-    return vec3((length(p.xyz) - fudgeFactor) / p.w, md, 0.33 * log(dot(c, c)) + 1.0);
+    return vec3((length(p.xyz) - cFudgeFactor) / p.w, md, 0.33 * log(dot(c, c)) + 1.0);
+}
+#endif
+
+
+#ifdef MANDELBULB
+
+uniform float cJuliaFactor; // {"label":"Juliabulb factor", "min":0, "max":1, "step":0.01, "default":0, "group":"Fractal", "group_label":"Additional parameters"}
+uniform float cRadiolariaFactor; // {"label":"Radiolaria factor", "min":-2, "max":2, "step":0.1, "default":0, "group":"Fractal"}
+uniform float cRadiolaria;       // {"label":"Radiolaria", "min":0, "max":1, "step":0.01, "default": 0, "group":"Fractal"}
+
+// Scalar derivative approach by Enforcer:
+// http://www.fractalforums.com/mandelbulb-implementation/realtime-renderingoptimisations/
+void powN(float p, inout vec3 z, float zr0, inout float dr)
+{
+    float zo0 = asin(z.z / zr0);
+    float zi0 = atan(z.y, z.x);
+    float zr = pow(zr0, p - 1.0);
+    float zo = zo0 * p;
+    float zi = zi0 * p;
+    float czo = cos(zo);
+
+    dr = zr * dr * p + 1.0;
+    zr *= zr0;
+
+    z = zr * vec3(czo * cos(zi), czo * sin(zi), sin(zo));
 }
 
+
+
+// The fractal calculation
+//
+// Calculate the closest distance to the fractal boundary and use this
+// distance as the size of the step to take in the ray marching.
+//
+// Fractal formula:
+//    z' = z^p + c
+//
+// For each iteration we also calculate the derivative so we can estimate
+// the distance to the nearest point in the fractal set, which then sets the
+// maxiumum step we can move the ray forward before having to repeat the calculation.
+//
+//   dz' = p * z^(p-1)
+//
+// The distance estimation is then calculated with:
+//
+//   0.5 * |z| * log(|z|) / |dz|
+//
+vec3 Mandelbulb(vec3 w)
+{
+    w *= cObjectRotation;
+    
+    vec3 z = w;
+    vec3 c = mix(w, cOffset, cJuliaFactor);
+    vec3 d = w;
+    float dr = 1.0;
+    float r  = length(z);
+    float md = 10000.0;
+    
+    for (int i = 0; i < int(maxIterations); i++) {
+        powN(cPower, z, r, dr);
+        
+        z += c;
+            
+        if (z.y > cRadiolariaFactor) {
+            z.y = mix(z.y, cRadiolariaFactor, cRadiolaria);
+        }
+        
+        r = length(z);
+        
+        if (i < cColorIterations) {
+            md = min(md, r);
+            d = z;
+        }
+        
+        if (r > bailout) break;
+    }
+
+    return vec3(0.5 * log(r) * r / dr, md, 0.33 * log(dot(d, d)) + 1.0);
+}
+#endif
+
+
+//----------------------------------------//
 //----------------------------------------//
 
 vec3 rayDirection(vec2 pixel)
