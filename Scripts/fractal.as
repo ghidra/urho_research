@@ -70,6 +70,7 @@ void Start(){
   //ToggleParameters();
 
   CreateScene();
+  CreateConsoleAndDebugHud();
   SetupViewport();
   SubscribeToEvents();
   //CreateInstructions();
@@ -428,12 +429,13 @@ void ToggleFullscreen(){
   IntVector2 res = graphics.desktopResolution;
   if(fullscreen){
     
-    res-=IntVector2(1280,720);
-    int posx = int(res.x/2.0);
-    int posy = int(res.y/2.0);
+    //res-=IntVector2(1280,720);
+    IntVector2 resh=res-IntVector2(int(res.x/2.0),int(res.y/2.0));
+    int posx = int(resh.x/2.0);
+    int posy = int(resh.y/2.0);
     IntVector2 pos=IntVector2(posx,posy);
 
-    graphics.SetMode(1280,720,false,true,false,false,false,1);
+    graphics.SetMode(int(res.x/2.0),int(res.y/2.0),false,true,false,false,false,1);
     graphics.SetWindowPosition(pos.x,pos.y);
 
     fullscreen=false;
@@ -535,6 +537,20 @@ void myHandleKeyDown(StringHash eventType, VariantMap& eventData){
     LoadParameters(9);
   else if (key == KEY_0) 
     LoadParameters(0);
+  else if (key == KEY_M)
+    {
+        if (debugHud.mode == 0 || (debugHud.mode & DEBUGHUD_SHOW_MEMORY) > 0)
+            debugHud.mode = DEBUGHUD_SHOW_STATS | DEBUGHUD_SHOW_MODE | DEBUGHUD_SHOW_PROFILER;
+        else
+            debugHud.mode = 0;
+    }
+    else if (key == KEY_N)
+    {
+        if (debugHud.mode == 0 || (debugHud.mode & DEBUGHUD_SHOW_PROFILER) > 0)
+            debugHud.mode = DEBUGHUD_SHOW_STATS | DEBUGHUD_SHOW_MODE | DEBUGHUD_SHOW_MEMORY;
+        else
+            debugHud.mode = 0;
+    }
 }
 void HandleUpdate(StringHash eventType, VariantMap& eventData){
   float timeStep = eventData["TimeStep"].GetFloat(); // Take the frame time step, which is stored as a float
