@@ -1,7 +1,17 @@
 <renderpath>
-    <command type="clear" color="fog" depth="1.0" stencil="0" />
-    <command type="scenepass" pass="base" vertexlights="true" metadata="base" />
-    <command type="scenepass" pass="refract">
-        <texture unit="environment" name="viewport" />
+	<rendertarget name="edge" tag="Edge" sizedivisor="1 1" format="rgb"/>
+	
+	<!--clear targets-->
+	<!--<command type="clear" color="fog" depth="1.0" stencil="0" />-->
+	<command type="clear" tag="Edge" color="0 0 0" depth="1.0" output="edge"/>
+
+	<!--render render the edge base color for detection to rendertarget-->
+    <command type="scenepass" tag="Edge" pass="edgebase" metadata="base">
+   		<output index="0" name="edge" />
+   	</command>
+    <!--render render the edge detection to a quad-->
+    <command type="quad" tag="Edge" vs="edge_quad" ps="edge_quad">
+    	<texture unit="diffuse" name="edge" />
     </command>
+
 </renderpath>
