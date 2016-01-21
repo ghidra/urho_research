@@ -1,5 +1,17 @@
-<technique vs="edge" ps="edge" >
-    <!--<pass name="base" vsdefines="BASE" psdefines="BASE"/>
-    <pass name="refract" vsdefines="EDGE" psdefines="EDGE" blend="alpha"/>-->
-    <pass name="edgebase" vs="edge_base" ps="edge_base"/>
+<technique vs="LitSolid" ps="LitSolid" psdefines="DIFFMAP">
+    <pass name="base" />
+    <pass name="litbase" psdefines="AMBIENT" />
+    <pass name="light" depthtest="equal" depthwrite="false" blend="add" />
+    <pass name="prepass" psdefines="PREPASS" />
+    <pass name="material" psdefines="MATERIAL" depthtest="equal" depthwrite="false" />
+    <pass name="deferred" psdefines="DEFERRED" />
+    <pass name="depth" vs="Depth" ps="Depth" />
+    <pass name="shadow" vs="Shadow" ps="Shadow" />
+    <pass name="material" vs="edge_base" ps="edge_base"  depthtest="equal" depthwrite="false" lighting="unlit" />
 </technique>
+
+<!--<technique vs="edge" ps="edge" >
+    <pass name="base" vsdefines="BASE" psdefines="BASE"/>
+    <pass name="refract" vsdefines="EDGE" psdefines="EDGE" blend="alpha"/>
+    <pass name="edgebase" vs="edge_base" ps="edge_base"  vsdefines="EDGEBASE" psdefines="EDGEBASE"/>
+</technique>-->

@@ -3,7 +3,10 @@
 #include "Transform.glsl"
 #include "ScreenPos.glsl"
 
-varying vec4 vScreenPos;
+varying vec2 vTexCoord;
+varying vec2 vScreenPos;
+varying vec4 vScreenPos4;
+
 
 #ifdef COMPILEPS
 
@@ -72,21 +75,27 @@ float IsEdge(in sampler2D tex, in vec2 coords, in vec2 size){
 
 void VS()
 {
-  mat4 modelMatrix = iModelMatrix;
-  vec3 worldPos = GetWorldPos(modelMatrix);
-  gl_Position = GetClipPos(worldPos);
 
-  vScreenPos = GetScreenPos(gl_Position);
+
+  mat4 modelMatrix = iModelMatrix;
+    vec3 worldPos = GetWorldPos(modelMatrix);
+    gl_Position = GetClipPos(worldPos);
+    vTexCoord = GetQuadTexCoord(gl_Position);
+    vScreenPos = GetScreenPosPreDiv(gl_Position);
+    vScreenPos4 = GetScreenPos(gl_Position);
+
 }
 
 void PS()
 {
 
-  vec4 edge = texture2D(sDiffMap,vScreenPos.xy  / vScreenPos.w);
+  vec4 edge = texture2D(sNormalMap,vScreenPos);
+  vec4 diff = texture2D(sDiffMap,vScreenPos);
   
   vec4 color = vec4(0.0,0.0,0.0,0.0);
-  if(IsEdge(sDiffMap,vScreenPos.xy / vScreenPos.w, cGBufferInvSize)>1.0){
+  if(IsEdge(sNormalMap,vScreenPos4.xy / vScreenPos4.w, cGBufferInvSize)>1.0){
     color.rgba = vec4(1.0);
   }
-  gl_FragColor = color+edge;
+  gl_FragColor = color+diff;
+  //gl_FragColor = edge;
 }

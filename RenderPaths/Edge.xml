@@ -1,17 +1,16 @@
 <renderpath>
-	<rendertarget name="edge" tag="Edge" sizedivisor="1 1" format="rgb"/>
-	
-	<!--clear targets-->
-	<!--<command type="clear" color="fog" depth="1.0" stencil="0" />-->
-	<command type="clear" tag="Edge" color="0 0 0" depth="1.0" output="edge"/>
+        <rendertarget name="Stow" tag="Edge" sizedivisor="1 1" format="rgb"  />
+	<rendertarget name="edge" tag="Edge" sizedivisor="1 1" format="rgb"  />
 
-	<!--render render the edge base color for detection to rendertarget-->
-    <command type="scenepass" tag="Edge" pass="edgebase" metadata="base">
-   		<output index="0" name="edge" />
-   	</command>
-    <!--render render the edge detection to a quad-->
-    <command type="quad" tag="Edge" vs="edge_quad" ps="edge_quad">
-    	<texture unit="diffuse" name="edge" />
+  <command type="quad" tag="Edge" vs="stow" ps="stow" output="Stow">
+        <texture unit="diffuse" name="viewport" />
+    </command>
+	
+    <command type="scenepass" tag="Edge" pass="material" sort="backtofront" metadata="base" />
+
+    <command type="quad" tag="Edge" vs="edge_quad" ps="edge_quad" output="viewport">
+        <texture unit="diffuse" name="stow" />
+        <texture unit="normal" name="viewport" />
     </command>
 
 </renderpath>

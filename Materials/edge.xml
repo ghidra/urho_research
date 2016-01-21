@@ -2,6 +2,8 @@
     <technique name="Techniques/edge.xml" />
     <parameter name="ObjectColor" value="1.0 1.0 1.0 16" />
     <parameter name="ObjectBlend" value="0.1" />
+    <texture unit="diffuse" name="Textures/StoneDiffuse.dds" />
+    <parameter name="MatSpecColor" value="0.1 0.1 0.1 16" />
     <!--<parameter name="EdgeThreshold" value="0.1" />-->
     <!--<technique name="Techniques/DiffNormalPacked.xml" quality="1" />
     <technique name="Techniques/Diff.xml" quality="0" />

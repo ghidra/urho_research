@@ -89,8 +89,22 @@ void SetupViewport(){
     // at minimum. Additionally we could configure the viewport screen size and the rendering path (eg. forward / deferred) to
     // use, but now we just use full screen and default render path configured in the engine command line options
     Viewport@ viewport = Viewport(scene_, cameraNode.GetComponent("Camera"));
-    XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Edge.xml");
-    viewport.SetRenderPath(xml);
+    
+
+    //----------
+    //renderer.viewports[0] = viewport;
+
+    // Clone the default render path so that we do not interfere with the other viewport, then add
+    RenderPath@ effectRenderPath = viewport.renderPath.Clone();
+    effectRenderPath.Append(cache.GetResource("XMLFile", "RenderPaths/Edge.xml"));
+    // Make the bloom mixing parameter more pronounced
+    //effectRenderPath.shaderParameters["BloomMix"] = Variant(Vector2(0.9f, 0.6f));
+    effectRenderPath.SetEnabled("Edge", false);
+    viewport.renderPath = effectRenderPath;
+    //----------
+    //XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Edge.xml");
+    //viewport.SetRenderPath(xml);
+    
     renderer.viewports[0] = viewport;
 }
 
@@ -123,6 +137,11 @@ void MoveCamera(float timeStep){
         cameraNode.Translate(Vector3(-1.0f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
     if (input.keyDown['D'])
         cameraNode.Translate(Vector3(1.0f, 0.0f, 0.0f) * MOVE_SPEED * timeStep);
+
+    RenderPath@ effectRenderPath = renderer.viewports[0].renderPath;
+    if (input.keyPress['E'])
+        effectRenderPath.ToggleEnabled("Edge");
+
 }
 
 void SubscribeToEvents(){
