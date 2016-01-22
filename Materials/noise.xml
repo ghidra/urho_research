@@ -1,0 +1,6 @@
+<material>
+    <technique name="Techniques/noise.xml" />
+    <texture unit="normal" name="Textures/noise.png" />
+    <!--<parameter name="MatSpecColor" value="0.3 0.3 0.3 16" />
+    <parameter name="ObjectRotation" value="1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0" />-->
+</material>
