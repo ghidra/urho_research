@@ -19,9 +19,25 @@ uniform sampler2D sNormalMap;
 //https://www.shadertoy.com/view/4sfGzS
 //https://www.shadertoy.com/view/MdfGRX#
 
-const mat3 m = mat3( 0.00,  0.80,  0.60,
-                    -0.80,  0.36, -0.48,
-                    -0.60, -0.48,  0.64 );
+#define USE_PROCEDURAL
+
+#ifdef USE_PROCEDURAL
+
+float hash( float n ) { return fract(sin(n)*753.5453123); }
+float noise( in vec3 x )
+{
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+    f = f*f*(3.0-2.0*f);
+  
+    float n = p.x + p.y*157.0 + 113.0*p.z;
+    return mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+                   mix( hash(n+157.0), hash(n+158.0),f.x),f.y),
+               mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+                   mix( hash(n+270.0), hash(n+271.0),f.x),f.y),f.z);
+}
+
+#else
 
 float noise( in vec3 x )
 {
@@ -30,10 +46,16 @@ float noise( in vec3 x )
 	f = f*f*(3.0-2.0*f);
 	
 	vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-	vec2 rg = texture2D( sNormalMap, (uv+0.5)/256.0, -100.0 ).yx;
+	vec2 rg = texture2D( sNormalMap, (uv+0.5)/256.0, -100.0 ).yx;//this function was not available on the laptop
+        //vec2 rg = texture2D( sNormalMap, (uv+0.5)/256.0 ).yx;
 	return mix( rg.x, rg.y, f.z );
 }
 
+#endif
+
+const mat3 m = mat3( 0.00,  0.80,  0.60,
+                    -0.80,  0.36, -0.48,
+                    -0.60, -0.48,  0.64 );
 float fbm( in vec3 x )
 {
 	float f = 0.0;
