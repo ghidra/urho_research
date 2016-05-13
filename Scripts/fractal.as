@@ -435,12 +435,12 @@ void ToggleFullscreen(){
     int posy = int(resh.y/2.0);
     IntVector2 pos=IntVector2(posx,posy);
 
-    graphics.SetMode(int(res.x/2.0),int(res.y/2.0),false,true,false,false,false,1);
+    graphics.SetMode(int(res.x/2.0),int(res.y/2.0),false,true,false,false,false,false,1);
     graphics.SetWindowPosition(pos.x,pos.y);
 
     fullscreen=false;
   }else{
-    graphics.SetMode(res.x,res.y,false,true,false,false,false,1);
+    graphics.SetMode(res.x,res.y,false,true,false,false,false,false,1);
     graphics.SetWindowPosition(0,0);
 
     fullscreen=true;
