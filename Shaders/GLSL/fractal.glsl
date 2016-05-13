@@ -588,7 +588,7 @@ void VS(){
     vScreenPos = GetScreenPos(gl_Position);
 
     //camera data
-    vCamRot =  cCameraRot;
+    vCamRot =  GetCameraRot();//cCameraRot;
     //vScreenDim = vec2(gl_Position.x,gl_Position.y);
 }
 
