@@ -1,0 +1,37 @@
+<renderpath>
+    <rendertarget name="stow" tag="LBM" sizedivisor="1 1" format="rgb"  />
+    <rendertarget name="lbm1" tag="LBM" sizedivisor="1 1" format="rgb" filter="true" />
+    <rendertarget name="lbm2" tag="LBM" sizedivisor="1 1" format="rgb" filter="true" /><!--if I want to do 2 passes-->
+    <rendertarget name="advect" tag="LBM" sizedivisor="1 1" format="rgb" filter="true" />
+
+    <!--stow the image away-->
+    <command type="quad" tag="LBM" vs="Stow" ps="Stow" output="stow">
+        <texture unit="diffuse" name="viewport" />
+    </command>
+	
+    <!--render the velocity pass and bluechannel as advetion time slash density-->
+    <command type="scenepass" tag="LBM" pass="lbm" sort="backtofront" metadata="base" />
+    <!--use the vel pass to add into the lbm pass  to isolate color from te viewport-->
+
+    <command type="quad" tag="LBM" vs="LBM" ps="LBM" psdefines="FIRSTPASS" output="lbm1">
+        <texture unit="diffuse" name="lbm2" />
+        <texture unit="1" name="viewport" /><!--this is passing in the new added in velocities-->
+    </command>
+    <!--do a second pass.. maybe-->
+    <command type="quad" tag="LBM" vs="LBM" ps="LBM" psdefines="SECONDPASS" output="lbm2">
+        <texture unit="diffuse" name="lbm1" />
+    </command>
+
+    <!--Now do the advection-->
+    <command type="quad" tag="LBM" vs="LBMQuad" ps="ADVECT" output="advect">
+        <texture unit="diffuse" name="lbm2" />
+        <texture unit="1" name="stow" /><!--this is passing in the new added in velocities-->
+    </command>
+
+    <!--now add it all together -->
+    <command type="quad" tag="LBM" vs="LBMQuad" ps="LBMQuad" psdefines="COMBINE" output="viewport">
+        <texture unit="diffuse" name="stow" />
+        <texture unit="1" name="advect" />
+    </command>
+
+</renderpath>
