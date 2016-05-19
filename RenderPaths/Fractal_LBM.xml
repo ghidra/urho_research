@@ -67,4 +67,20 @@
             <parameter name="DepthMap" value="true" />
       </command>
 
+      <rendertarget name="stow" tag="LBM" sizedivisor="1 1" format="rgb"  />
+      <rendertarget name="lbm1" tag="LBM" sizedivisor="1 1" format="rgb" filter="true" />
+      <rendertarget name="lbm2" tag="LBM" sizedivisor="1 1" format="rgb" filter="true" /><!--if I want to do 2 passes-->
+      <rendertarget name="advect" tag="LBM" sizedivisor="1 1" format="rgb" filter="true" />
+
+      <!--stow the image away-->
+      <command type="quad" tag="LBM" vs="stow" ps="stow" output="stow">
+            <texture unit="diffuse" name="viewport" />
+      </command>
+      
+      <!--render the velocity pass and bluechannel as advetion time slash density-->
+      <!--<command type="scenepass" tag="LBM" pass="lbm" sort="backtofront" metadata="base" />-
+      In this version I need to just draw another quad of the parts I want to advect etc
+      -->
+      <command type="quad" pass="fractal" vs="fractal_lbm" ps="fractal_lbm" psdefines="MENGERSPONGE LBM" ></command>
+
 </renderpath>

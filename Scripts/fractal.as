@@ -416,7 +416,8 @@ void CreateScene(){
 
 void SetupViewport(){
   viewport_ = Viewport(scene_, cameraNode.GetComponent("Camera"));
-  XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Fractal.xml");
+  //XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Fractal.xml");
+  XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Fractal_LBM.xml");
   viewport_.SetRenderPath(xml);
   renderer.viewports[0] = viewport_;
 

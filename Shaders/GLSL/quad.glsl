@@ -7,7 +7,7 @@ varying vec2 vTexCoord;
 varying vec2 vScreenPos2;
 //varying vec4 vScreenPos4;
 
-void VS)
+void VS()
 {
     mat4 modelMatrix = iModelMatrix;
     vec3 worldPos = GetWorldPos(modelMatrix);
