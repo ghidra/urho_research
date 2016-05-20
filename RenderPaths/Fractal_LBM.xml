@@ -67,10 +67,13 @@
             <parameter name="DepthMap" value="true" />
       </command>
 
+      <!--IT BEGINS-->
+
       <rendertarget name="stow" tag="LBM" sizedivisor="1 1" format="rgb"  />
       <rendertarget name="lbm1" tag="LBM" sizedivisor="1 1" format="rgb" filter="true" />
       <rendertarget name="lbm2" tag="LBM" sizedivisor="1 1" format="rgb" filter="true" /><!--if I want to do 2 passes-->
-      <rendertarget name="advect" tag="LBM" sizedivisor="1 1" format="rgb" filter="true" />
+      <rendertarget name="advect1" tag="LBM" sizedivisor="1 1" format="rgb" filter="true" />
+      <rendertarget name="advect2" tag="LBM" sizedivisor="1 1" format="rgb" filter="true" />
 
       <!--stow the image away-->
       <command type="quad" tag="LBM" vs="stow" ps="stow" output="stow">
@@ -84,27 +87,33 @@
       <command type="quad" pass="fractal" vs="fractal_lbm" ps="fractal_lbm" psdefines="MENGERSPONGE LBM" ></command>
 
 
-      <!--start with eht lbm-->
-      <command type="quad" tag="LBM" vs="lbm_solve" ps="lbm_solve" psdefines="FIRSTPASS" output="lbm1"><!--output="lbm1"-->
+      <!--start with the lbm-->
+      <command type="quad" tag="LBM" vs="quad" ps="lbm_solve" output="lbm1"><!--output="lbm1"-->
         <texture unit="diffuse" name="lbm2" />
-        <texture unit="1" name="viewport" /><!--this is passing in the new added in velocities-->
+        <!--<texture unit="1" name="viewport" />--><!--this is passing in the new added in velocities-->
       </command>
       <!--do a second pass.. maybe-->
-      <command type="quad" tag="LBM" vs="lbm_solve" ps="lbm_solve" psdefines="SECONDPASS" output="lbm2"> <!--output="lbm2"-->
+      <command type="quad" tag="LBM" vs="quad" ps="lbm_solve" output="lbm2"> 
         <texture unit="diffuse" name="lbm1" />
       </command>
 
       <!--Now do the advection--><!--this is passing in the new added in velocities-->
-      <!--<command type="quad" tag="LBM" vs="LBMQuad" ps="ADVECT" output="advect">
+      <command type="quad" tag="LBM" vs="quad" ps="lbm_advect" output="advect1">
             <texture unit="diffuse" name="lbm2" />
-            <texture unit="1" name="stow" />
-      </command>-->
+            <texture unit="1" name="advect2" />
+            <texture unit="2" name="stow" />
+      </command>
+      <command type="quad" tag="LBM" vs="quad" ps="lbm_advect" output="advect2">
+            <texture unit="diffuse" name="lbm2" />
+            <texture unit="1" name="advect1" />
+            <texture unit="2" name="stow" />
+      </command>
 
       <!--now add it all together -->
-      <command type="quad" tag="LBM" vs="lbm_render" ps="lbm_render" psdefines="COMBINE" output="viewport">
+      <command type="quad" tag="LBM" vs="quad" ps="lbm_render" psdefines="COMBINE" output="viewport">
             <texture unit="diffuse" name="stow" />
-            <!--<texture unit="1" name="advect" />-->
-            <texture unit="1" name="lbm2" />
+            <texture unit="1" name="advect2" />
+            <!--<texture unit="1" name="lbm2" />-->
       </command>
 
 </renderpath>
