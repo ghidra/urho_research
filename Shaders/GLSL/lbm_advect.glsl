@@ -4,7 +4,7 @@
 #include "Transform.glsl"
 #include "ScreenPos.glsl"
 
-#define VEL 0.025
+#define VEL 1.1
 //#define IMG
 
 varying vec2 vTexCoord;

@@ -28,7 +28,7 @@ varying vec2 vScreenPos2;
 //}
 
 //channel velocity
-#define VEL 0.025
+#define VEL 1.1
 
 #endif
 
