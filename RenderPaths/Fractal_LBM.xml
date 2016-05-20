@@ -88,22 +88,22 @@
 
 
       <!--start with the lbm-->
-      <command type="quad" tag="LBM" vs="quad" ps="lbm_solve" output="lbm1"><!--output="lbm1"-->
+      <command type="quad" tag="LBM" vs="quad" ps="lbm_solve" psdefines="FIRSTPASS" persistent="true" output="lbm1"><!--output="lbm1"-->
         <texture unit="diffuse" name="lbm2" />
         <!--<texture unit="1" name="viewport" />--><!--this is passing in the new added in velocities-->
       </command>
       <!--do a second pass.. maybe-->
-      <command type="quad" tag="LBM" vs="quad" ps="lbm_solve" output="lbm2"> 
+      <command type="quad" tag="LBM" vs="quad" ps="lbm_solve" persistent="true" output="lbm2"> 
         <texture unit="diffuse" name="lbm1" />
       </command>
 
       <!--Now do the advection--><!--this is passing in the new added in velocities-->
-      <command type="quad" tag="LBM" vs="quad" ps="lbm_advect" output="advect1">
+      <command type="quad" tag="LBM" vs="quad" ps="lbm_advect" psdefines="FIRSTPASS" persistent="true" output="advect1">
             <texture unit="diffuse" name="lbm2" />
             <texture unit="1" name="advect2" />
             <texture unit="2" name="stow" />
       </command>
-      <command type="quad" tag="LBM" vs="quad" ps="lbm_advect" output="advect2">
+      <command type="quad" tag="LBM" vs="quad" ps="lbm_advect" persistent="true" output="advect2">
             <texture unit="diffuse" name="lbm2" />
             <texture unit="1" name="advect1" />
             <texture unit="2" name="stow" />
