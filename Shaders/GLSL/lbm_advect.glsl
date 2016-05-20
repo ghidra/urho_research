@@ -41,7 +41,7 @@ void PS( )// out vec4 fragColor, in vec2 fragCoord
 		vec2 dir=(normalize(sam));
 		//dir -= vec2(0.5,0.5);
 		
-		vec3 col = texture2D( sDetailMap1, vScreenPos2-((dir*length(sam))*VEL) ).xyz;////this is it trying to do the ping pong.... if we need to, which we might
+		vec3 col = texture2D( sDetailMap1, vScreenPos2-((dir*length(sam))*VEL*cDeltaTimePS) ).xyz;////this is it trying to do the ping pong.... if we need to, which we might
 		
 		if(solid>0.5)
 			#ifdef IMG

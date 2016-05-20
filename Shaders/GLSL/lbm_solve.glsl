@@ -28,7 +28,7 @@ varying vec2 vScreenPos2;
 //}
 
 //channel velocity
-#define VEL 0.1
+#define VEL 0.025
 
 #endif
 
@@ -79,8 +79,8 @@ void PS()
 	{
 		rho = 1.0;
 		
-		vx = VEL*dir.x;
-		vy = VEL*dir.y;
+		vx = VEL*dir.x*cDeltaTimePS;
+		vy = VEL*dir.y*cDeltaTimePS;
 		
 		float sq_term = -1.5 * (vx*vx+vy*vy);
 		f0 = 4./9. *rho*(1. + sq_term);
@@ -143,8 +143,8 @@ void PS()
 			rho = 1.0;
 			
 			
-			vx = VEL*dir.x;
-			vy = VEL*dir.y;
+			vx = VEL*dir.x*cDeltaTimePS;
+			vy = VEL*dir.y*cDeltaTimePS;
 			//vx = VEL;
 			//vy = 0.0;
 			w = 1.0;
