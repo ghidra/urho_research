@@ -44,8 +44,8 @@ void PS( )// out vec4 fragColor, in vec2 fragCoord
 	}
 	float cc = length(sam);
 
-	//gl_FragColor = vec4(col,1.0);
-	gl_FragColor = vec4(abs(sam),0.0,1.0);
+	gl_FragColor = vec4(col,1.0);
+	//gl_FragColor = vec4(abs(sam),0.0,1.0);
 
 	#ifdef FIRSTPASS
 	if( cElapsedTimePS<=0.0 ) //initialisation

@@ -61,10 +61,10 @@ void PS()
 	//all 4 pixels do the same computations
 	int ix = int(floor(pix.x/2.0));
 	int iy = int(floor(pix.y/2.0));
-	//if( ix >= LatSizeX || iy >= LatSizeY )
-	//{
-	//    return;
-	//}
+	if( ix >= LatSizeX || iy >= LatSizeY )
+	{
+	    return;
+	}
 	int itx = int(pix.x) - 2*ix;
 	int ity = int(pix.y) - 2*iy;
 	float f0,f1,f2,f3,f4,f5,f6,f7,f8; //distribution functions
@@ -103,7 +103,7 @@ void PS()
 		vx *= 0.2/norm;
 		vy *= 0.2/norm;
 	}
-	if(ix==0||ix==LatSizeX-1)//boundary condition
+	if(ix==0||ix==LatSizeX-1 || iy==0 || iy==LatSizeY-1)//boundary condition
 	{
 		rho = 1.0;
 		
@@ -180,8 +180,7 @@ void PS()
 
     }
     #endif
-
-	//gl_FragColor = vec4(solid,vx,vy,1.0);
+	
 	if(itx==0&&ity==0)//stores f0,f1,f2
 		gl_FragColor = vec4(f0,f1,f2,1.0);
 	else if(itx==1&&ity==0)//stores f3,f4,f5
