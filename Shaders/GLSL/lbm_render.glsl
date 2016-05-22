@@ -29,7 +29,7 @@ void PS()
 	//only one pixel out of 4 stores the moments
     	int ix = int(floor(pix.x/2.0));
 	int iy = int(floor(pix.y/2.0));
-	vec3 m = texture2D(sDetailMap1, (vec2(2*ix+1,2*iy+1)+0.5)/res).xyz;
+	vec3 m = texture2D(sDiffMap1, (vec2(2*ix+1,2*iy+1)+0.5)/res).xyz;
 
 	//gl_FragColor = vec4(lbm_color.xyz*2.0,lbm_color.a);
 	//gl_FragColor = vec4(lbm_color);
