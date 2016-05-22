@@ -431,12 +431,20 @@ void ToggleFullscreen(){
   if(fullscreen){
     
     //res-=IntVector2(1280,720);
-    IntVector2 resh=res-IntVector2(int(res.x/2.0),int(res.y/2.0));
+    //make sure that haf is divisibe by to to have an even number
+    int hx = int(res.x/2.0);
+    int hy = int(res.y/2.0);
+    hx=(hx%2!=0)?hx+1:hx;
+    hy=(hy%2!=0)?hy+1:hy;
+
+    IntVector2 half = IntVector2(hx,hy);
+
+    IntVector2 resh=res-half;
     int posx = int(resh.x/2.0);
     int posy = int(resh.y/2.0);
     IntVector2 pos=IntVector2(posx,posy);
 
-    graphics.SetMode(int(res.x/2.0),int(res.y/2.0),false,true,false,false,false,false,1);
+    graphics.SetMode(hx,hy,false,true,false,false,false,false,1);
     graphics.SetWindowPosition(pos.x,pos.y);
 
     fullscreen=false;
