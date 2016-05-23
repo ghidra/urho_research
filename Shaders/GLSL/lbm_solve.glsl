@@ -50,7 +50,7 @@ void PS()
 
 	//get the actual resolution
 	vec2 res = 1.0/cGBufferInvSize;
-	vec2 pix = vScreenPos2*res;//the pixel coordinate
+	vec2 pix = vTexCoord*res;//the pixel coordinate
 
 	//relaxation time
 	float w = 1.95;
@@ -75,120 +75,123 @@ void PS()
 	vec2 center = res/2.0;
 	vec2 dir = normalize(pix-center);
 
-	//=== STREAMING STEP (PERIODIC) =======================
-	int xplus  = ((ix==LatSizeX-1) ? (0) : (ix+1));
-	int xminus = ((ix==0) ? (LatSizeX-1) : (ix-1));
-	int yplus  = ((iy==LatSizeY-1) ? (0) : (iy+1));
-	int yminus = ((iy==0) ? (LatSizeY-1) : (iy-1));
-	//f0 = f0( ix    ,iy    );
-	f1 = f1( xminus,iy    );
-	f2 = f2( xplus ,iy    );
-	f3 = f3( ix    ,yminus);
-	f4 = f4( ix    ,yplus );
-	f5 = f5( xminus,yminus);
-	f6 = f6( xplus ,yplus );
-	f7 = f7( xplus ,yminus);
-	f8 = f8( xminus,yplus );
-
-	//=== COMPUTE MOMENTS =================================
-	//density
-	rho = f0+f1+f2+f3+f4+f5+f6+f7+f8;
-	//velocity
-	vx = 1./rho*(f1-f2+f5-f6-f7+f8);
-	vy = 1./rho*(f3-f4+f5-f6+f7-f8);
-	//velocity cap for stability
-	float norm = sqrt(vx*vx+vy*vy);
-	if(norm>0.2)
+	if( (cElapsedTimePS<=0.0) || (f0==0.0) ) //initialisation
 	{
-		vx *= 0.2/norm;
-		vy *= 0.2/norm;
+		 //#ifdef FIRSTPASS
+	        rho = 1.0;
+	        
+	        vx = VEL*dir.x*cDeltaTimePS;
+	        vy = VEL*dir.y*cDeltaTimePS;
+	        
+	        float sq_term = -1.5 * (vx*vx+vy*vy);
+	        f0 = 4./9. *rho*(1. + sq_term);
+	        f1 = 1./9. *rho*(1. + 3.*vx      + 4.5*vx*vx             + sq_term);
+	        f2 = 1./9. *rho*(1. - 3.*vx      + 4.5*vx*vx             + sq_term);
+	        f3 = 1./9. *rho*(1. + 3.*vy      + 4.5*vy*vy             + sq_term);
+	        f4 = 1./9. *rho*(1. - 3.*vy      + 4.5*vy*vy             + sq_term);
+	        f5 = 1./36.*rho*(1. + 3.*( vx+vy)+ 4.5*( vx+vy)*( vx+vy) + sq_term);
+	        f6 = 1./36.*rho*(1. - 3.*( vx+vy)+ 4.5*( vx+vy)*( vx+vy) + sq_term);
+	        f7 = 1./36.*rho*(1. + 3.*(-vx+vy)+ 4.5*(-vx+vy)*(-vx+vy) + sq_term);
+	        f8 = 1./36.*rho*(1. - 3.*(-vx+vy)+ 4.5*(-vx+vy)*(-vx+vy) + sq_term);
+
+	        if( distance(vec2(50.0,LatSizeY/2),vec2(ix,iy)) < 10.0 )
+	            solid = 1.0;
+	        else
+	            solid = 0.0;
+
+	        for(int i=0; i<1028; i++)
+	        {
+	            highp float px = rand(vec2(0.23,0.44)*float(i));
+	            highp float py = rand(vec2(0.81,0.19)*float(i));
+	            if( distance(vec2(px,py)*res,vec2(ix,iy)) < 1.0 )
+	                solid = 1.0;
+	            
+	        }
+	        //#endif
+
 	}
-	if(ix==0||ix==LatSizeX-1 || iy==0 || iy==LatSizeY-1)//boundary condition
+	else
 	{
-		rho = 1.0;
-		
-		
-		vx = VEL*dir.x*cDeltaTimePS;
-		vy = VEL*dir.y*cDeltaTimePS;
-		//vx = VEL;
-		//vy = 0.0;
-		w = 1.0;
+		//=== STREAMING STEP (PERIODIC) =======================
+		int xplus  = ((ix==LatSizeX-1) ? (0) : (ix+1));
+		int xminus = ((ix==0) ? (LatSizeX-1) : (ix-1));
+		int yplus  = ((iy==LatSizeY-1) ? (0) : (iy+1));
+		int yminus = ((iy==0) ? (LatSizeY-1) : (iy-1));
+		//f0 = f0( ix    ,iy    );
+		f1 = f1( xminus,iy    );
+		f2 = f2( xplus ,iy    );
+		f3 = f3( ix    ,yminus);
+		f4 = f4( ix    ,yplus );
+		f5 = f5( xminus,yminus);
+		f6 = f6( xplus ,yplus );
+		f7 = f7( xplus ,yminus);
+		f8 = f8( xminus,yplus );
+
+		//=== COMPUTE MOMENTS =================================
+		//density
+		rho = f0+f1+f2+f3+f4+f5+f6+f7+f8;
+		//velocity
+		vx = 1./rho*(f1-f2+f5-f6-f7+f8);
+		vy = 1./rho*(f3-f4+f5-f6+f7-f8);
+		//velocity cap for stability
+		float norm = sqrt(vx*vx+vy*vy);
+		if(norm>0.2)
+		{
+			vx *= 0.2/norm;
+			vy *= 0.2/norm;
+		}
+		if(ix==0||ix==LatSizeX-1 || iy==0 || iy==LatSizeY-1)//boundary condition
+		{
+			rho = 1.0;
+			
+			
+			vx = VEL*dir.x*cDeltaTimePS;
+			vy = VEL*dir.y*cDeltaTimePS;
+			//vx = VEL;
+			//vy = 0.0;
+			w = 1.0;
+		}
+		//if( iMouse.w>0.01 && distance(iMouse.xy/2.0,vec2(ix,iy)) < 2.0)
+		//    solid = 1.0;
+		if( solid>0.5 )
+		{
+			rho = 1.0;
+			vx  = 0.0;
+			vy  = 0.0;
+			w = 1.0;
+		}
+
+		float sq_term = -1.5 * (vx*vx+vy*vy);
+		float f0eq = 4./9. *rho*(1. + sq_term);
+		float f1eq = 1./9. *rho*(1. + 3.*vx      + 4.5*vx*vx             + sq_term);
+		float f2eq = 1./9. *rho*(1. - 3.*vx      + 4.5*vx*vx             + sq_term);
+		float f3eq = 1./9. *rho*(1. + 3.*vy      + 4.5*vy*vy             + sq_term);
+		float f4eq = 1./9. *rho*(1. - 3.*vy      + 4.5*vy*vy             + sq_term);
+		float f5eq = 1./36.*rho*(1. + 3.*( vx+vy)+ 4.5*( vx+vy)*( vx+vy) + sq_term);
+		float f6eq = 1./36.*rho*(1. - 3.*( vx+vy)+ 4.5*( vx+vy)*( vx+vy) + sq_term);
+		float f7eq = 1./36.*rho*(1. + 3.*(-vx+vy)+ 4.5*(-vx+vy)*(-vx+vy) + sq_term);
+		float f8eq = 1./36.*rho*(1. - 3.*(-vx+vy)+ 4.5*(-vx+vy)*(-vx+vy) + sq_term);
+		//=== RELAX TOWARD EQUILIBRIUM ========================
+		f0 = (1.-w) * f0 + w * f0eq;
+		f1 = (1.-w) * f1 + w * f1eq;
+		f2 = (1.-w) * f2 + w * f2eq;
+		f3 = (1.-w) * f3 + w * f3eq;
+		f4 = (1.-w) * f4 + w * f4eq;
+		f5 = (1.-w) * f5 + w * f5eq;
+		f6 = (1.-w) * f6 + w * f6eq;
+		f7 = (1.-w) * f7 + w * f7eq;
+		f8 = (1.-w) * f8 + w * f8eq;
 	}
-	//if( iMouse.w>0.01 && distance(iMouse.xy/2.0,vec2(ix,iy)) < 2.0)
-	//    solid = 1.0;
-	if( solid>0.5 )
-	{
-		rho = 1.0;
-		vx  = 0.0;
-		vy  = 0.0;
-		w = 1.0;
-	}
-
-	float sq_term = -1.5 * (vx*vx+vy*vy);
-	float f0eq = 4./9. *rho*(1. + sq_term);
-	float f1eq = 1./9. *rho*(1. + 3.*vx      + 4.5*vx*vx             + sq_term);
-	float f2eq = 1./9. *rho*(1. - 3.*vx      + 4.5*vx*vx             + sq_term);
-	float f3eq = 1./9. *rho*(1. + 3.*vy      + 4.5*vy*vy             + sq_term);
-	float f4eq = 1./9. *rho*(1. - 3.*vy      + 4.5*vy*vy             + sq_term);
-	float f5eq = 1./36.*rho*(1. + 3.*( vx+vy)+ 4.5*( vx+vy)*( vx+vy) + sq_term);
-	float f6eq = 1./36.*rho*(1. - 3.*( vx+vy)+ 4.5*( vx+vy)*( vx+vy) + sq_term);
-	float f7eq = 1./36.*rho*(1. + 3.*(-vx+vy)+ 4.5*(-vx+vy)*(-vx+vy) + sq_term);
-	float f8eq = 1./36.*rho*(1. - 3.*(-vx+vy)+ 4.5*(-vx+vy)*(-vx+vy) + sq_term);
-	//=== RELAX TOWARD EQUILIBRIUM ========================
-	f0 = (1.-w) * f0 + w * f0eq;
-	f1 = (1.-w) * f1 + w * f1eq;
-	f2 = (1.-w) * f2 + w * f2eq;
-	f3 = (1.-w) * f3 + w * f3eq;
-	f4 = (1.-w) * f4 + w * f4eq;
-	f5 = (1.-w) * f5 + w * f5eq;
-	f6 = (1.-w) * f6 + w * f6eq;
-	f7 = (1.-w) * f7 + w * f7eq;
-	f8 = (1.-w) * f8 + w * f8eq;
-
-    #ifdef FIRSTPASS
-    if( (cElapsedTimePS<=0.0) || (f0==0.0) ) //initialisation
-    {
-        rho = 1.0;
-        
-        vx = VEL*dir.x*cDeltaTimePS;
-        vy = VEL*dir.y*cDeltaTimePS;
-        
-        float sq_term = -1.5 * (vx*vx+vy*vy);
-        f0 = 4./9. *rho*(1. + sq_term);
-        f1 = 1./9. *rho*(1. + 3.*vx      + 4.5*vx*vx             + sq_term);
-        f2 = 1./9. *rho*(1. - 3.*vx      + 4.5*vx*vx             + sq_term);
-        f3 = 1./9. *rho*(1. + 3.*vy      + 4.5*vy*vy             + sq_term);
-        f4 = 1./9. *rho*(1. - 3.*vy      + 4.5*vy*vy             + sq_term);
-        f5 = 1./36.*rho*(1. + 3.*( vx+vy)+ 4.5*( vx+vy)*( vx+vy) + sq_term);
-        f6 = 1./36.*rho*(1. - 3.*( vx+vy)+ 4.5*( vx+vy)*( vx+vy) + sq_term);
-        f7 = 1./36.*rho*(1. + 3.*(-vx+vy)+ 4.5*(-vx+vy)*(-vx+vy) + sq_term);
-        f8 = 1./36.*rho*(1. - 3.*(-vx+vy)+ 4.5*(-vx+vy)*(-vx+vy) + sq_term);
-
-        if( distance(vec2(50.0,LatSizeY/2),vec2(ix,iy)) < 10.0 )
-            solid = 1.0;
-        else
-            solid = 0.0;
-
-        for(int i=0; i<1028; i++)
-        {
-            highp float px = rand(vec2(0.23,0.44)*float(i));
-            highp float py = rand(vec2(0.81,0.19)*float(i));
-            if( distance(vec2(px,py)*res,vec2(ix,iy)) < 1.0 )
-                solid = 1.0;
-            
-        }
-
-    }
-    #endif
+    
 	
-	if(itx==0&&ity==0)//stores f0,f1,f2
-		gl_FragColor = vec4(f0,f1,f2,1.0);
-	else if(itx==1&&ity==0)//stores f3,f4,f5
-		gl_FragColor = vec4(f3,f4,f5,1.0);
-	else if(itx==0&&ity==1)//stores f6,f7,f8
-		gl_FragColor = vec4(f6,f7,f8,1.0);
-	else //stores rho,vx,vy
-		gl_FragColor = vec4(solid,vx,vy,1.0);
-
+	//if(itx==0&&ity==0)//stores f0,f1,f2
+	//	gl_FragColor = vec4(f0,f1,f2,1.0);
+	//else if(itx==1&&ity==0)//stores f3,f4,f5
+	//	gl_FragColor = vec4(f3,f4,f5,1.0);
+	//else if(itx==0&&ity==1)//stores f6,f7,f8
+	//	gl_FragColor = vec4(f6,f7,f8,1.0);
+	//else //stores rho,vx,vy
+	//	gl_FragColor = vec4(solid,vx,vy,1.0);
+	gl_FragColor = vec4(solid,dir.x,dir.y,1.0);
 
 }

@@ -113,7 +113,7 @@
       <command type="quad" tag="LBM" vs="quad" ps="lbm_render" psdefines="COMBINE" output="viewport">
             <texture unit="diffuse" name="stow" />
             <!--<texture unit="1" name="advect2" />-->
-            <texture unit="1" name="lbm2" />-
+            <texture unit="1" name="lbm1" />-
       </command>
 
 </renderpath>
