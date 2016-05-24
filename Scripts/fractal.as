@@ -431,11 +431,16 @@ void ToggleFullscreen(){
   if(fullscreen){
     
     //res-=IntVector2(1280,720);
-    //make sure that haf is divisibe by to to have an even number
+    //make sure that haf is divisibe by tw to have an even number
     int hx = int(res.x/2.0);
     int hy = int(res.y/2.0);
     hx=(hx%2!=0)?hx+1:hx;
     hy=(hy%2!=0)?hy+1:hy;
+
+    if(hx<720 || hy<400){
+      hx=720;
+      hy=400;
+    }
 
     IntVector2 half = IntVector2(hx,hy);
 
