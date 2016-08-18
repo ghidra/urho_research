@@ -509,7 +509,7 @@ void myHandleKeyDown(StringHash eventType, VariantMap& eventData){
     ToggleParameters();
   else if (key == KEY_F)
     ToggleFullscreen();
-  else if (key == KEY_ESC) 
+  else if (key == KEY_ESCAPE) 
     engine.Exit();
   else if (key == KEY_F1) 
     SaveParameters(1);
