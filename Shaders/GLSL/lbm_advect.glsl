@@ -20,14 +20,20 @@ void PS( )// out vec4 fragColor, in vec2 fragCoord
 {
 	vec2 res = 1.0/cGBufferInvSize;
 	
-	int firstpass=0;
+	/*int firstpass=0;
 	#ifdef FIRSTPASS
 	firstpass=1;
-	#endif
+	#endif*/
 
-	if( cElapsedTimePS<=0.0 && firstpass>0 )
+	if( cElapsedTimePS<0.3 )// && firstpass>0
 	{
-		gl_FragColor  = vec4(vTexCoord,0.0,1.0);
+		//if we have a image to use, otherwise are are going to debug with the uvs
+		//#ifdef IMG
+        	//vec3 im = texture2D(iChannel2, u ).xyz;
+        	//gl_FragColor = vec4(im,1.0);
+        //#else
+			gl_FragColor  = vec4(vTexCoord,0.0,1.0);
+		//#endif
 	}
 	else
 	{
@@ -41,9 +47,13 @@ void PS( )// out vec4 fragColor, in vec2 fragCoord
 		vec2 dir=(normalize(sam));
 		//dir -= vec2(0.5,0.5);
 		
-		vec3 col = texture2D( sDetailMap1, vTexCoord-(dir*length(sam)*VEL*cDeltaTimePS) ).xyz;////this is it trying to do the ping pong.... if we need to, which we might
+		// /vec3 col = texture2D( sDetailMap1, vTexCoord-(dir*length(sam)*VEL*cDeltaTimePS) ).xyz;////this is it trying to do the ping pong.... if we need to, which we might
+		vec3 col = texture2D( sDetailMap1, vTexCoord+(sam*0.03)).xyz;
 		//vec3 col = vec3(vTexCoord-((dir*length(sam)*VEL*cDeltaTimePS)),0.0);////this is it trying to do the ping pong.... if we need to, which we might
 		//vec3 col = texture2D(sDetailMap2,vTexCoord-((dir*length(sam)))).xyz;////this is it trying to do the ping pong.... if we need to, which we might
+		//col = vec3(dir,0.0);//this shows me the direction
+		 //col = texture2D( sDetailMap1, vTexCoord).xyz;
+		 //col= vec3(cElapsedTimePS);
 		if(solid>0.5)
 		{
 			//#ifdef IMG
@@ -51,8 +61,9 @@ void PS( )// out vec4 fragColor, in vec2 fragCoord
 			//#else
 			//col=vec3(vScreenPos2,0.0);
 			//#endif
-			col=texture2D(sDetailMap1, vTexCoord ).xyz;
-			//col=vec3(vTexCoord,0.0);
+			//col=texture2D(sDetailMap1, vTexCoord ).xyz;
+			col=vec3(vTexCoord,0.0);
+			//col=vec3(1.0,0.0,1.0);
 		}
 		//float cc = length(sam);
 		//gl_FragColor=vec4(vec3(cc),1.0);

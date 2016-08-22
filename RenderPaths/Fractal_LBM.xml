@@ -72,8 +72,8 @@
 	<rendertarget name="stow" tag="LBM" sizedivisor="1 1" format="rgba16f"  />
 	<rendertarget name="lbm1" tag="LBM" sizedivisor="1 1" format="rgba16f" persistent="true" filter="false" />
 	<rendertarget name="lbm2" tag="LBM" sizedivisor="1 1" format="rgba16f" persistent="true" filter="false" /><!--if I want to do 2 passes-->
-	<rendertarget name="advect1" tag="LBM" sizedivisor="1 1" format="rgba16f" persistent="true" filter="false" />
-	<rendertarget name="advect2" tag="LBM" sizedivisor="1 1" format="rgba16f" persistent="true" filter="false" />
+	<rendertarget name="advect1" tag="LBM" sizedivisor="1 1" format="rgba16f" persistent="true" filter="true" />
+	<rendertarget name="advect2" tag="LBM" sizedivisor="1 1" format="rgba16f" persistent="true" filter="true" />
 
 	<!--stow the image away-->
 	<command type="quad" tag="LBM" vs="stow" ps="stow" output="stow">
@@ -117,8 +117,8 @@
 	<!--now add it all together -->
 	<command type="quad" tag="LBM" vs="quad" ps="lbm_render" psdefines="COMBINE" output="viewport">
 		<!--<texture unit="diffuse" name="stow" />-->
-		<!--<texture unit="1" name="advect2" />-->
-		<texture unit="1" name="lbm2" />
+		<texture unit="1" name="advect2" />
+		<!--<texture unit="1" name="lbm2" />-->
 	</command>
 
 </renderpath>
