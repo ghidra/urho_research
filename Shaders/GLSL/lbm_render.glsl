@@ -8,6 +8,7 @@ varying vec2 vScreenPos2;
 //varying vec4 vScreenPos4;
 
 uniform sampler2D sDetailMap1;
+uniform sampler2D sDetailMap2;
 
 void VS()
 {
@@ -25,7 +26,8 @@ void PS()
 
 	//vec4 stow_color =  texture2D(sDiffMap,hpix);
 	//vec4 lbm_color =  texture2D(sDetailMap1,vTexCoord);
-	vec3 m =  texture2D(sDetailMap1,vTexCoord).xyz;
+	//vec3 m =  texture2D(sDetailMap1,vTexCoord).xyz;
+	vec3 m =  texture2D(sDetailMap2,vTexCoord).xyz;
 	gl_FragColor=vec4(m,1.0);
 
 /*

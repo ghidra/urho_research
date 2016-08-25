@@ -75,6 +75,8 @@
 	<rendertarget name="advect1" tag="LBM" sizedivisor="1 1" format="rgba16f" persistent="true" filter="true" />
 	<rendertarget name="advect2" tag="LBM" sizedivisor="1 1" format="rgba16f" persistent="true" filter="true" />
 
+
+	<!--THIS IS THE BEGINNING OF THE LBM STUFF-->
 	<!--stow the image away-->
 	<command type="quad" tag="LBM" vs="stow" ps="stow" output="stow">
 		<texture unit="diffuse" name="viewport" />
@@ -83,8 +85,12 @@
 	<!--render the velocity pass and bluechannel as advetion time slash density-->
 	<!--<command type="scenepass" tag="LBM" pass="lbm" sort="backtofront" metadata="base" />-
 	In this version I need to just draw another quad of the parts I want to advect etc
-	-->
-	<command type="quad" pass="fractal" vs="fractal_lbm" ps="fractal_lbm" psdefines="MENGERSPONGE LBM" ></command>
+	
+	<command type="quad" pass="fractal" vs="fractal_lbm" ps="fractal_lbm" psdefines="MENGERSPONGE LBM" ></command>-->
+
+	<command type="quad" tag="LBM" pass="fractal" vs="lbm_injection" ps="lbm_injection"  >
+		<texture unit="diffuse" name="stow" />
+	</command><!-- in the future this will be a normal 3d matte pass -->
 
 	<!--<command type="clear" enabled="true" color="fog" depth="1.0" stencil="0" output="viewport"/>-->
 
@@ -118,7 +124,7 @@
 	<command type="quad" tag="LBM" vs="quad" ps="lbm_render" psdefines="COMBINE" output="viewport">
 		<!--<texture unit="diffuse" name="stow" />-->
 		<texture unit="1" name="advect2" />
-		<!--<texture unit="1" name="lbm2" />-->
+		<texture unit="2" name="viewport" />
 	</command>
 
 </renderpath>

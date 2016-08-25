@@ -29,27 +29,17 @@ float noise( in vec3 x )
 
 #endif
 
-highp float rand(vec2 co)
-{
-    highp float a = 12.9898;
-    highp float b = 78.233;
-    highp float c = 43758.5453;
-    highp float dt= dot(co.xy ,vec2(a,b));
-    highp float sn= mod(dt,3.14);
-    return fract(sin(sn) * c);
-}
-
-const mat3 mmm = mat3( 0.00,  0.80,  0.60,
+const mat3 m = mat3( 0.00,  0.80,  0.60,
                     -0.80,  0.36, -0.48,
                     -0.60, -0.48,  0.64 );
 float fbm( in vec3 x )
 {
-  float f = 0.0;
-  vec3 q = 8.0*x;
-    f  = 0.5000*noise( q ); q = mmm*q*2.01;
-    f += 0.2500*noise( q ); q = mmm*q*2.02;
-    f += 0.1250*noise( q ); q = mmm*q*2.03;
-    f += 0.0625*noise( q ); q = mmm*q*2.01;
+	float f = 0.0;
+	vec3 q = 8.0*x;
+    f  = 0.5000*noise( q ); q = m*q*2.01;
+    f += 0.2500*noise( q ); q = m*q*2.02;
+    f += 0.1250*noise( q ); q = m*q*2.03;
+    f += 0.0625*noise( q ); q = m*q*2.01;
 
     return f*1.2;
 }
@@ -78,4 +68,49 @@ float lum(vec3 rgb)
 {
     const vec3 W = vec3(0.2125, 0.7154, 0.0721);
     return dot(rgb, W);
+}
+
+//fast sin and cos
+//precision highp float;
+//https://gist.github.com/going-digital/4320041
+float sinf(float x)
+{
+  x*=0.159155;
+  x-=floor(x);
+  float xx=x*x;
+  float y=-6.87897;
+  y=y*xx+33.7755;
+  y=y*xx-72.5257;
+  y=y*xx+80.5874;
+  y=y*xx-41.2408;
+  y=y*xx+6.28077;
+  return x*y;
+}
+float cosf(float x)
+{
+  return sinf(x+1.5708);
+}
+vec2 sinf(vec2 x)
+{
+  return vec2(sinf(x.x),sinf(x.y));
+}
+vec2 cosf(vec2 x)
+{
+  return vec2(cosf(x.x),cosf(x.y));
+}
+vec3 sinf(vec3 x)
+{
+  return vec3(sinf(x.x),sinf(x.y),sinf(x.z));
+}
+vec3 cosf(vec3 x)
+{
+  return vec3(cosf(x.x),cosf(x.y),cosf(x.z));
+}
+vec4 sinf(vec4 x)
+{
+  return vec4(sinf(x.x),sinf(x.y),sinf(x.z),sinf(x.w));
+}
+vec4 cosf(vec4 x)
+{
+  return vec4(cosf(x.x),cosf(x.y),cosf(x.z),cosf(x.w));
 }
