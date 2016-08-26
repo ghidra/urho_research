@@ -99,7 +99,7 @@
 	<command type="quad" tag="LBM" vs="quad" ps="lbm_solve" psdefines="FIRSTPASS" output="lbm1"><!--output="lbm1"-->
 	  	<texture unit="diffuse" name="lbm2" />
 	  	<!--<texture unit="2" name="lbm1" />-->
-	  	<!--<texture unit="1" name="viewport" />--><!--this is passing in the new added in velocities-->
+	  	<texture unit="1" name="viewport" /><!--this is passing in the new added in velocities-->
 	</command>
 	<command type="quad" tag="LBM" vs="quad" ps="lbm_solve" output="lbm2"> 
 	  	<texture unit="diffuse" name="lbm1" />

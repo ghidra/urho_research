@@ -26,11 +26,11 @@ void PS()
 
 	//vec4 stow_color =  texture2D(sDiffMap,hpix);
 	//vec4 lbm_color =  texture2D(sDetailMap1,vTexCoord);
-	//vec3 m =  texture2D(sDetailMap1,vTexCoord).xyz;
-	vec3 m =  texture2D(sDetailMap2,vTexCoord).xyz;
-	gl_FragColor=vec4(m,1.0);
+	vec3 m =  texture2D(sDetailMap1,vTexCoord).xyz;
+	//vec3 m =  texture2D(sDetailMap2,vTexCoord).xyz;
+	//gl_FragColor=vec4(m,1.0);
 
-/*
+
 	//only one pixel out of 4 stores the moments
 	int ix = int(floor(gl_FragCoord.x/2.0));
 	int iy = int(floor(gl_FragCoord.y/2.0));
@@ -69,7 +69,7 @@ void PS()
 	}
 	else
 	{
-		gl_FragColor=vec4(m*10.0,1.0);
+		gl_FragColor=vec4(m,1.0);
 	}
-	*/
+
 }

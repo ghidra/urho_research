@@ -21,9 +21,9 @@ void VS()
 
 void PS()
 {
-  vec4 diff = texture2D(sDiffMap,vScreenPos);
-  float l = bias(lum(diff.xyz),0.3);
-  //ok, use that bias a multiplier on the velocity...
+  	vec4 diff = texture2D(sDiffMap,vScreenPos);
+  	float l = bias(lum(diff.xyz),0.3);
+  	//ok, use that bias a multiplier on the velocity...
   	//IF I WANT TO USE SOME DOT IN HERE
   	vec2 res = 1.0/cGBufferInvSize;
   	float solid = 0.0;
@@ -35,5 +35,9 @@ void PS()
     		solid = 1.0;
 	}
 
-  gl_FragColor = vec4(l);
+	//lets make some noise, I guess based on the uvspave for now + time
+	float xn = 2.0* (noise( vec3(vScreenPos+vec2(cElapsedTimePS*0.03),1.0)*12.8 ) -0.5 );
+	float yn = 2.0* (noise( vec3(vScreenPos-vec2(cElapsedTimePS*0.03)+vec2(12.3,-13.4),1.0)*12.8 )-0.5 );
+
+  	gl_FragColor = vec4(xn*l,yn*l,l,1.0);
 }
