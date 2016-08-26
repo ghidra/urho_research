@@ -5,7 +5,7 @@
 #include "Transform.glsl"
 #include "ScreenPos.glsl"
 
-varying vec2 vTexCoord;
+//varying vec2 vTexCoord;
 varying vec2 vScreenPos2;
 
 uniform sampler2D sDetailMap1;
@@ -42,6 +42,17 @@ highp float rand(vec2 co)
 	return fract(sin(sn) * c);
 }
 
+//this was kind of working without the vs shader... right now I keep it for the screenpos
+void VS()
+{
+	mat4 modelMatrix = iModelMatrix;
+	vec3 worldPos = GetWorldPos(modelMatrix);
+	gl_Position = GetClipPos(worldPos);
+	//vTexCoord = GetQuadTexCoord(gl_Position);
+	vScreenPos2 = GetScreenPosPreDiv(gl_Position);
+	// vScreenPos4 = GetScreenPos(gl_Position);
+}
+
 void PS()
 {
 	//get the contribution pass
@@ -76,6 +87,12 @@ void PS()
 	
 	vec2 center = res/2.0;
 	vec2 dir = normalize(gl_FragCoord.xy-center);
+
+	#ifdef INJECT
+		dir = texture2D(sDetailMap1,vScreenPos2).xy*6.;
+		//dir = vec2(1.0,1.0);	
+	#endif
+
 
 	//-------------
 	if( (cElapsedTimePS<=0.0) || (f0==0.0) ) //initialisation
