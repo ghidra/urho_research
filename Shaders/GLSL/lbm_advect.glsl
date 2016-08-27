@@ -4,7 +4,7 @@
 #include "Transform.glsl"
 #include "ScreenPos.glsl"
 
-#define VEL 0.025
+#define VEL 5.0
 //#define IMG
 
 varying vec2 vTexCoord;
@@ -14,26 +14,21 @@ varying vec2 vScreenPos2;
 //uniform sampler2D sDetailMap1;
 uniform sampler2D sDetailMap1;
 uniform sampler2D sDetailMap2;
+uniform sampler2D sDetailMap3;
 #endif
 
 void PS( )// out vec4 fragColor, in vec2 fragCoord
 {
 	vec2 res = 1.0/cGBufferInvSize;
-	
-	/*int firstpass=0;
-	#ifdef FIRSTPASS
-	firstpass=1;
-	#endif*/
 
-	if( cElapsedTimePS<0.3 )// && firstpass>0
+	if( cElapsedTimePS<0.2 )// && firstpass>0
 	{
-		//if we have a image to use, otherwise are are going to debug with the uvs
-		//#ifdef IMG
-        	//vec3 im = texture2D(iChannel2, u ).xyz;
-        	//gl_FragColor = vec4(im,1.0);
-        //#else
-			gl_FragColor  = vec4(vTexCoord,0.0,1.0);
-		//#endif
+        #ifdef LEGACY
+			gl_FragColor = vec4(vTexCoord,0.0,1.0);
+		#endif	
+		
+		gl_FragColor = vec4(vec3(texture2D( sDetailMap3, vTexCoord).xyz),0.0);
+
 	}
 	else
 	{
@@ -41,34 +36,21 @@ void PS( )// out vec4 fragColor, in vec2 fragCoord
 		int iy = int(floor(gl_FragCoord.y/2.0));
 		vec2 sam = texture2D(sDiffMap, (vec2(2*ix+1,2*iy+1)+0.5)/res).yz;
 		float solid = texture2D(sDiffMap, (vec2(2*ix+1,2*iy+1)+0.5)/res).x;
-		
-		//vec2 sam = texture2D(iChannel0, u ).yz;
-		
 		vec2 dir=(normalize(sam));
-		//dir -= vec2(0.5,0.5);
+		vec2 sample_pos = vTexCoord+(sam*cDeltaTimePS*VEL);
 		
-		// /vec3 col = texture2D( sDetailMap1, vTexCoord-(dir*length(sam)*VEL*cDeltaTimePS) ).xyz;////this is it trying to do the ping pong.... if we need to, which we might
-		vec3 col = texture2D( sDetailMap1, vTexCoord+(sam*0.03)).xyz;
-		//vec3 col = vec3(vTexCoord-((dir*length(sam)*VEL*cDeltaTimePS)),0.0);////this is it trying to do the ping pong.... if we need to, which we might
-		//vec3 col = texture2D(sDetailMap2,vTexCoord-((dir*length(sam)))).xyz;////this is it trying to do the ping pong.... if we need to, which we might
-		//col = vec3(dir,0.0);//this shows me the direction
-		 //col = texture2D( sDetailMap1, vTexCoord).xyz;
-		 //col= vec3(cElapsedTimePS);
-		if(solid>0.5)
-		{
-			//#ifdef IMG
-			//col=vec3(1.,1.,0.0);//texture2D(sDetailMap2, vScreenPos2 ).xyz;
-			//#else
-			//col=vec3(vScreenPos2,0.0);
-			//#endif
-			//col=texture2D(sDetailMap1, vTexCoord ).xyz;
-			col=vec3(vTexCoord,0.0);
-			//col=vec3(1.0,0.0,1.0);
-		}
-		//float cc = length(sam);
-		//gl_FragColor=vec4(vec3(cc),1.0);
-		gl_FragColor = vec4(col,1.0);
+		vec4 adv = texture2D( sDetailMap1, sample_pos);//get the advection render itself
+		vec4 mat = texture2D( sDetailMap2, sample_pos);//the rendered view port, whoms blue chanel is useful
+		vec4 stw = texture2D( sDetailMap3, sample_pos);//this is the render before any of this process began
+
+		#ifdef LEGACY
+			if(solid>0.5)
+			{
+				col=vec3(vTexCoord,0.0);
+			}
+		#endif
+		float a = clamp( mat.b+(adv.a-(VEL*cDeltaTimePS)),0.0,1.0);//the alpha is addative of the incoming matte, and the advected matte
+		gl_FragColor = vec4(mix(adv.xyz,stw.xyz,mat.b),a);
 	}
-	//gl_FragColor  = vec4(vTexCoord,0.0,1.0);
-	//gl_FragColor = vec4(abs(sam),0.0,1.0);
+
 }

@@ -69,7 +69,8 @@
 
 	<!--IT BEGINS-->
 
-	<rendertarget name="stow" tag="LBM" sizedivisor="1 1" format="rgba16f"  />
+	<rendertarget name="stow" tag="LBM" sizedivisor="1 1" />
+	<rendertarget name="lbminput" tag="LBM" sizedivisor="1 1" format="rgba16f" />
 	<rendertarget name="lbm1" tag="LBM" sizedivisor="1 1" format="rgba16f" persistent="true" filter="false" />
 	<rendertarget name="lbm2" tag="LBM" sizedivisor="1 1" format="rgba16f" persistent="true" filter="false" /><!--if I want to do 2 passes-->
 	<rendertarget name="advect1" tag="LBM" sizedivisor="1 1" format="rgba16f" persistent="true" filter="true" />
@@ -88,7 +89,7 @@
 	
 	<command type="quad" pass="fractal" vs="fractal_lbm" ps="fractal_lbm" psdefines="MENGERSPONGE LBM" ></command>-->
 
-	<command type="quad" tag="LBM" pass="fractal" vs="lbm_injection" ps="lbm_injection"  >
+	<command type="quad" tag="LBM" pass="fractal" vs="lbm_injection" ps="lbm_injection" output="lbminput" >
 		<texture unit="diffuse" name="stow" />
 	</command><!-- in the future this will be a normal 3d matte pass -->
 
@@ -96,15 +97,15 @@
 
 	<!--start with the lbm-->
 	<!--do a second pass.. maybe-->
-	<command type="quad" tag="LBM" vs="quad" ps="lbm_solve" psdefines="FIRSTPASS INJECT" output="lbm1"><!--output="lbm1"-->
+	<command type="quad" tag="LBM" vs="quad" ps="lbm_solve" psdefines="INJECT" output="lbm1"><!--output="lbm1"-->
 	  	<texture unit="diffuse" name="lbm2" />
 	  	<!--<texture unit="2" name="lbm1" />-->
-	  	<texture unit="1" name="viewport" /><!--this is passing in the new added in velocities-->
+	  	<texture unit="1" name="lbminput" /><!--this is passing in the new added in velocities-->
 	</command>
 	<command type="quad" tag="LBM" vs="quad" ps="lbm_solve" psdefines="INJECT" output="lbm2"> 
 	  	<texture unit="diffuse" name="lbm1" />
 	  	<!--<texture unit="2" name="lbm1" />-->
-	  	<texture unit="1" name="viewport" />
+	  	<texture unit="1" name="lbminput" />
 	</command>
 	<!--maybe i need to write back into 1?_..
 	
@@ -113,19 +114,21 @@
 	<command type="quad" tag="LBM" vs="quad" ps="lbm_advect" psdefines="FIRSTPASS" output="advect1">
 		<texture unit="diffuse" name="lbm2" />
 		<texture unit="1" name="advect2" />
-		<texture unit="2" name="stow" />
+		<texture unit="2" name="lbminput" /><!--inject the advect channel for advection-->
+		<texture unit="3" name="stow" />
 	</command>
 	<command type="quad" tag="LBM" vs="quad" ps="lbm_advect" output="advect2">
 		<texture unit="diffuse" name="lbm2" />
 		<texture unit="1" name="advect1" />
-		<texture unit="2" name="stow" />
+		<texture unit="2" name="lbminput" /><!--inject the advect channel for advection-->
+		<texture unit="3" name="stow" />
 	</command>
 
 	<!--now add it all together -->
 	<command type="quad" tag="LBM" vs="quad" ps="lbm_render" psdefines="COMBINE" output="viewport">
-		<!--<texture unit="diffuse" name="stow" />-->
+		<texture unit="diffuse" name="stow" />
 		<texture unit="1" name="advect2" />
-		<texture unit="2" name="viewport" />
+		<texture unit="2" name="lbminput" /><!--this is only here for testing-->
 	</command>
 
 </renderpath>

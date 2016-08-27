@@ -5,11 +5,13 @@
 #include "Transform.glsl"
 #include "ScreenPos.glsl"
 
+#include "functions.glsl"
+
 //varying vec2 vTexCoord;
 varying vec2 vScreenPos2;
 
 uniform sampler2D sDetailMap1;
-uniform sampler2D sDetailMap2;
+//uniform sampler2D sDetailMap2;
 //varying vec4 vScreenPos4;
 
 #ifdef COMPILEPS
@@ -28,19 +30,9 @@ uniform sampler2D sDetailMap2;
 #define solid(x,y) texture2D(sDiffMap, ( vec2(2*x+1,2*y+1)+0.5) / (1.0/cGBufferInvSize) ).r;
 
 #define VEL 1.0
+//#define MAKEDOTS
 
 #endif
-
-
-highp float rand(vec2 co)
-{
-	highp float a = 12.9898;
-	highp float b = 78.233;
-	highp float c = 43758.5453;
-	highp float dt= dot(co.xy ,vec2(a,b));
-	highp float sn= mod(dt,3.14);
-	return fract(sin(sn) * c);
-}
 
 //this was kind of working without the vs shader... right now I keep it for the screenpos
 void VS()
@@ -87,9 +79,12 @@ void PS()
 	
 	vec2 center = res/2.0;
 	vec2 dir = normalize(gl_FragCoord.xy-center);
+	//vec2 dir = vec2(0.0,1.0);
 
+	float sol = 0.0;
 	#ifdef INJECT
-		dir = texture2D(sDetailMap1,vScreenPos2).xy*6.;
+		dir = texture2D(sDetailMap1,vScreenPos2).xy;
+		sol = texture2D(sDetailMap1,vScreenPos2).a;
 		//dir = vec2(1.0,1.0);	
 	#endif
 
@@ -113,18 +108,22 @@ void PS()
 			f7 = 1./36.*rho*(1. + 3.*(-vx+vy)+ 4.5*(-vx+vy)*(-vx+vy) + sq_term);
 			f8 = 1./36.*rho*(1. - 3.*(-vx+vy)+ 4.5*(-vx+vy)*(-vx+vy) + sq_term);
 
-			if( distance(vec2(50.0,LatSizeY/2),vec2(ix,iy)) < 10.0 )
-					solid = 1.0;
-			else
-					solid = 0.0;
+			#ifdef MAKEDOTS
 
-			for(int i=0; i<1028; i++)
+				if( distance(vec2(50.0,LatSizeY/2),vec2(ix,iy)) < 10.0 )
+						solid = 1.0;
+				else
+						solid = 0.0;
+
+			
+				for(int i=0; i<1028; i++)
 		        {
 		        	highp float px = rand(vec2(0.23,0.44)*float(i));
 		            	highp float py = rand(vec2(0.81,0.19)*float(i));
 		            	if( distance(vec2(px,py)*res,vec2(ix,iy)) < 1.0 )
 		            		solid = 1.0;
 		        }
+	        #endif
 	}
 	else
 	{
@@ -150,6 +149,16 @@ void PS()
 			//velocity
 			vx = 1./rho*(f1-f2+f5-f6-f7+f8);
 			vy = 1./rho*(f3-f4+f5-f6+f7-f8);
+
+			//the injected version
+			vec2 read_v = normalize(dir);
+			float sp = fit( length(read_v), 0.0,1.2,0.0,0.2 );
+
+			//now modify the vels and see how we exoplode everything
+			//vx = mix(vx,read_v.x,sp);
+			//vy = mix(vy,read_v.y,sp);
+			//HOW DO I GET TO ADD BACK IN MY COOL VELS
+
 			//velocity cap for stability
 			float norm = sqrt(vx*vx+vy*vy);
 			if(norm>0.2)
@@ -170,13 +179,25 @@ void PS()
 			}
 			//if( iMouse.w>0.01 && distance(iMouse.xy/2.0,vec2(ix,iy)) < 2.0)
 			//    solid = 1.0;
-			if( solid>0.5 )
-			{
+			#ifdef MAKEDOTS
+				if( solid>0.5 )
+				{
 					rho = 1.0;
 					vx  = 0.0;
 					vy  = 0.0;
 					w = 1.0;
-			}
+				}
+			#else
+				if( sol>0.75 )
+				{
+					rho = 1.0;
+					vx  = 0.0;
+					vy  = 0.0;
+					w = 1.0;
+				}
+			#endif
+			
+
 
 			float sq_term = -1.5 * (vx*vx+vy*vy);
 			float f0eq = 4./9. *rho*(1. + sq_term);
