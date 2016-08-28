@@ -157,6 +157,11 @@ void PS()
 			//now modify the vels and see how we exoplode everything
 			//vx = mix(vx,read_v.x,sp);
 			//vy = mix(vy,read_v.y,sp);
+			if(length(dir)>0.75)
+			{
+				vx+=dir.x*rho*0.001;
+				vy+=dir.y*rho*0.001;
+			}
 			//HOW DO I GET TO ADD BACK IN MY COOL VELS
 
 			//velocity cap for stability
