@@ -111,7 +111,7 @@
 	
 
 	<!--Now do the advection--><!--this is passing in the new added in velocities-->
-	<command type="quad" tag="LBM" vs="quad" ps="lbm_advect" psdefines="FIRSTPASS" output="advect1">
+	<command type="quad" tag="LBM" vs="quad" ps="lbm_advect" output="advect1">
 		<texture unit="diffuse" name="lbm2" />
 		<texture unit="1" name="advect2" />
 		<texture unit="2" name="lbminput" /><!--inject the advect channel for advection-->
@@ -125,7 +125,7 @@
 	</command>
 
 	<!--now add it all together -->
-	<command type="quad" tag="LBM" vs="quad" ps="lbm_render" psdefines="COMBINE" output="viewport">
+	<command type="quad" tag="LBM" vs="quad" ps="lbm_render" output="viewport">
 		<texture unit="diffuse" name="stow" />
 		<texture unit="1" name="advect2" />
 		<texture unit="2" name="lbminput" /><!--this is only here for testing-->

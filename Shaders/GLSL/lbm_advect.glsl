@@ -4,7 +4,8 @@
 #include "Transform.glsl"
 #include "ScreenPos.glsl"
 
-#define VEL 5.0
+#define VEL 0.4
+#define FADE 0.4
 //#define IMG
 
 varying vec2 vTexCoord;
@@ -49,7 +50,8 @@ void PS( )// out vec4 fragColor, in vec2 fragCoord
 				col=vec3(vTexCoord,0.0);
 			}
 		#endif
-		float a = clamp( mat.b+(adv.a-(VEL*cDeltaTimePS)),0.0,1.0);//the alpha is addative of the incoming matte, and the advected matte
+
+		float a = clamp( mat.b+(adv.a-(FADE*cDeltaTimePS)),0.0,1.0);//the alpha is addative of the incoming matte, and the advected matte
 		gl_FragColor = vec4(mix(adv.xyz,stw.xyz,mat.b),a);
 	}
 

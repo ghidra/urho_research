@@ -80,6 +80,7 @@ void PS()
 
 	//i am using the alpha channel to matte in the underneither viewport
 	gl_FragColor=vec4(mix( stw.xyz, adv.xyz, adv.a),1.0);
-	gl_FragColor+=vec4(inp.xyz*0.4,0.0);
-	//gl_FragColor=vec4(inp.xy,0.0,1.0);
+	//gl_FragColor+=vec4(inp.xyz*0.4,0.0);
+	//gl_FragColor=vec4(vec3(adv.a),1.0);
+	//gl_FragColor=vec4(vec3(inp.b),1.0);
 }

@@ -22,7 +22,9 @@ void VS()
 void PS()
 {
   	vec4 diff = texture2D(sDiffMap,vScreenPos);
+    //float l = noise( vec3(vScreenPos-vec2(cElapsedTimePS*0.06)+vec2(22.1,6.4),2.1)*53.1 );
   	float l = bias(lum(diff.xyz),0.3);
+    l=(l>0.3)?l:0.0;
   	//ok, use that bias a multiplier on the velocity...
   	//IF I WANT TO USE SOME DOT IN HERE
   	vec2 res = 1.0/cGBufferInvSize;
