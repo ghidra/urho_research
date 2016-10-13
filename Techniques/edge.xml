@@ -11,7 +11,7 @@
 </technique>-->
 
 <technique vs="edge" ps="edge" >
-    <pass name="base" vsdefines="BASE" psdefines="BASE"/>
-    <pass name="refract" vsdefines="EDGE" psdefines="EDGE" blend="alpha"/>
-    <pass name="edgebase" vs="edge_base" ps="edge_base"  vsdefines="EDGEBASE" psdefines="EDGEBASE"/>
+    <pass name="base" psdefines="NONE"/>
+    <pass name="edgebase" vs="edge_base" ps="edge_base"/>
+
 </technique>

@@ -1,12 +1,12 @@
 <renderpath>
-        <rendertarget name="Stow" tag="Edge" sizedivisor="1 1" format="rgb"  />
+    <rendertarget name="Stow" tag="Edge" sizedivisor="1 1" format="rgb"  />
 	<rendertarget name="edge" tag="Edge" sizedivisor="1 1" format="rgb"  />
 
-  <command type="quad" tag="Edge" vs="stow" ps="stow" output="Stow">
+    <command type="quad" tag="Edge" vs="stow" ps="stow" output="Stow">
         <texture unit="diffuse" name="viewport" />
     </command>
-	
-    <command type="scenepass" tag="Edge" pass="material" sort="backtofront" metadata="base" />
+
+    <command type="scenepass" tag="Edge" pass="edgebase" sort="backtofront" metadata="base" />
 
     <command type="quad" tag="Edge" vs="edge_quad" ps="edge_quad" output="viewport">
         <texture unit="diffuse" name="stow" />

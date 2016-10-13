@@ -93,21 +93,26 @@ void VS()
     vec3 worldPos = GetWorldPos(modelMatrix);
     gl_Position = GetClipPos(worldPos);
 
-    #ifdef EDGE
-      vScreenPos = GetScreenPos(gl_Position);
-    #endif
-
     #ifdef BASE
         //vColor = iColor;
         vec3 n = iNormal+vec3(1.0);
         n*=0.5;
         vColor = mix(cObjectColor,vec4(n,1.0),cObjectBlend);
     #endif
+
+    #ifdef EDGE
+      vScreenPos = GetScreenPos(gl_Position);
+    #endif
+
+    
 }
 
 void PS()
 {
 
+    #ifdef NONE
+        gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+    #endif
 
     #ifdef BASE
         //vec4 diffColor = cMatDiffColor;

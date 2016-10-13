@@ -99,7 +99,7 @@ void SetupViewport(){
     effectRenderPath.Append(cache.GetResource("XMLFile", "RenderPaths/Edge.xml"));
     // Make the bloom mixing parameter more pronounced
     //effectRenderPath.shaderParameters["BloomMix"] = Variant(Vector2(0.9f, 0.6f));
-    effectRenderPath.SetEnabled("Edge", false);
+    effectRenderPath.SetEnabled("Edge", true);
     viewport.renderPath = effectRenderPath;
     //----------
     //XMLFile@ xml = cache.GetResource("XMLFile", "RenderPaths/Edge.xml");
