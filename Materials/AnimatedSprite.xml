@@ -1,0 +1,6 @@
+<material>
+    <technique name="Techniques/AnimatedSprite.xml" />
+    <parameter name="Sheet" value="6.0 6.0" />
+    <parameter name="Rate" value="16.0" />
+    <texture unit="diffuse" name="Textures/Vista_smoke_alpha.jpg" />
+</material>
